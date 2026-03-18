@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Professional Tech Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <canvas id="particleCanvas"></canvas>
+
+    <header>
+        <h2 class="logo">RAJA<span>TECH</span></h2>
+        <nav class="navigation">
+            <a href="index.html">Home</a>
+            <a href="general.html">About</a>
+            <a href="general.html">Service</a>
+            <button class="btnLogin-popup">Login</button>
+        </nav>
+    </header>
+
+    <div class="wrapper">
+        <div class="window-controls">
+            <span class="icon-minimize"><i class="fa-solid fa-minus"></i></span>
+            <span class="icon-close"><i class="fa-solid fa-xmark"></i></span>
+        </div>
+
+        <div class="form-container">
+            <div class="form-box login">
+                <h2>Login</h2>
+                <form id="loginForm">
+                    <div class="input-group">
+                        <label>Email</label>
+                        <div class="field">
+                            <input type="email" id="logEmail" placeholder="example@gmail.com" required>
+                            <i class="fa-solid fa-envelope"></i>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label>Password</label>
+                        <div class="field">
+                            <input type="password" id="logPass" placeholder="••••••••" required>
+                            <i class="fa-solid fa-eye-slash toggle-password" data-target="logPass"></i>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn">Login</button>
+                    <div class="login-register">
+                        <p>Don't have an account? <a href="profile.html" class="register-link">Register</a></p>
+                    </div>
+                </form>
+            </div>
+
+            <div class="form-box register">
+                <h2>Registration</h2>
+                <form id="regForm">
+                    <div class="input-group">
+                        <label>Username</label>
+                        <div class="field">
+                            <input type="text" id="regUser" placeholder="Enter username" required>
+                            <i class="fa-solid fa-user"></i>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label>Email</label>
+                        <div class="field">
+                            <input type="email" id="regEmail" placeholder="example@gmail.com" required>
+                            <i class="fa-solid fa-envelope"></i>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label>Password</label>
+                        <div class="field">
+                            <input type="password" id="regPass" placeholder="Create password" required>
+                            <i class="fa-solid fa-eye-slash toggle-password" data-target="regPass"></i>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn">Register</button>
+                    <div class="login-register">
+                        <p>Already have an account? <a href="wlcmpage.html" class="login-link">Login</a></p>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
