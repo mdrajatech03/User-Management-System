@@ -22,7 +22,6 @@ let imgData = "";
 onAuthStateChanged(auth, async (user) => {
     if (user) {
         userUID = user.uid;
-        // ADMIN CHECK (rajaalinagar99@gmail.com)
         if(user.email === "rajaalinagar99@gmail.com") document.getElementById('adminBtn').style.display = "block";
         
         const snap = await getDoc(doc(db, "userProfiles", user.uid));
@@ -31,45 +30,35 @@ onAuthStateChanged(auth, async (user) => {
             showSection('viewSection');
             document.getElementById('editBtn').style.display = "inline-block";
             document.getElementById('saveBtn').style.display = "none";
-        } else { 
-            showSection('welcomeScreen'); // Show welcome form if data missing
-        }
+        } else { showSection('welcomeScreen'); }
     } else { 
-        // Professional secure popup for direct URL access without login
         Swal.fire({
             title: 'Secured Area',
-            text: 'Please login to view profile details.',
+            text: 'Access requires authentication. Redirecting...',
             icon: 'info',
-            timer: 2500,
+            timer: 2000,
             showConfirmButton: false,
             background: '#1e293b',
             color: '#fff',
-            backdrop: `rgba(0,242,254,0.15)`
+            backdrop: `rgba(0,242,254,0.1)`
         }).then(() => {
-            location.href = "index.html"; // Redirect to login
+            location.href = "index.html";
         });
     }
 });
 
-// Photo Compression (Canvas fix)
+// Photo Compression (CORS fix handled by base64)
 document.getElementById('fImage').onchange = (e) => {
     const reader = new FileReader();
     reader.onload = (ev) => {
         const img = new Image();
-        img.crossOrigin = "anonymous"; // Try cross-origin (even though it's local FileReader)
         img.src = ev.target.result;
         img.onload = () => {
             const canvas = document.createElement('canvas');
-            const MAX_WIDTH = 400; // Optimal profile pic size
-            const scaleSize = MAX_WIDTH / img.width;
-            canvas.width = MAX_WIDTH;
-            canvas.height = img.height * scaleSize;
-            
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-            imgData = canvas.toDataURL('image/jpeg', 0.8); // Compressed JPEG
-            
-            document.getElementById('pImg').src = imgData; // Preview while form filling
+            canvas.width = 300; canvas.height = 300;
+            canvas.getContext('2d').drawImage(img, 0, 0, 300, 300);
+            imgData = canvas.toDataURL('image/jpeg', 0.8);
+            document.getElementById('pImg').src = imgData;
         };
     };
     if(e.target.files[0]) reader.readAsDataURL(e.target.files[0]);
@@ -77,18 +66,16 @@ document.getElementById('fImage').onchange = (e) => {
 
 window.triggerPreview = () => {
     const dName = document.getElementById('fName').value.trim();
-    if(!dName) return Swal.fire('Error', 'Full Name is required', 'error', background:'#1e293b', color:'#fff');
-    if(!imgData) return Swal.fire('Error', 'Photo is required', 'error', background:'#1e293b', color:'#fff');
+    if(!dName) return Swal.fire('Error', 'Full Name is required', 'warning', background:'#1e293b', color:'#fff');
+    if(!imgData) return Swal.fire('Error', 'Profile photo is required', 'warning', background:'#1e293b', color:'#fff');
 
     const data = {
         username: dName,
         email: auth.currentUser.email,
         dob: document.getElementById('fDob').value,
-        gender: document.getElementById('fGender').value,
         category: document.getElementById('fCategory').value,
         father: document.getElementById('fFather').value,
-        mother: document.getElementById('fMother').value,
-        profilePic: imgData // Photo from memory
+        profilePic: imgData
     };
     renderUI(data);
     showSection('viewSection');
@@ -97,7 +84,7 @@ window.triggerPreview = () => {
 
 window.finalSave = async () => {
     try {
-        Swal.fire({ title: 'Securing Identity...', didOpen: () => Swal.showLoading(), background:'#1e293b', color:'#fff' });
+        Swal.fire({title: 'Securing Identity...', didOpen: () => Swal.showLoading(), background:'#1e293b', color:'#fff'});
         
         const data = {
             username: document.getElementById('pName').innerText,
@@ -105,7 +92,6 @@ window.finalSave = async () => {
             dob: document.getElementById('pDob').innerText,
             category: document.getElementById('pCategory').innerText,
             father: document.getElementById('pFather').innerText,
-            mother: document.getElementById('pMother').innerText,
             profilePic: document.getElementById('pImg').src,
             updatedAt: new Date().toISOString()
         };
@@ -113,9 +99,7 @@ window.finalSave = async () => {
         Swal.fire('Success', 'Profile Permanent Saved!', 'success', background:'#1e293b', color:'#fff');
         document.getElementById('saveBtn').style.display = "none";
         document.getElementById('editBtn').style.display = "inline-block";
-    } catch (e) { 
-        Swal.fire('Error', 'Firestore connection failed', 'error', background:'#1e293b', color:'#fff');
-    }
+    } catch (e) { Swal.fire('Error', 'Firestore connection failed', 'error', background:'#1e293b', color:'#fff'); }
 };
 
 window.showSection = (id) => {
@@ -126,52 +110,44 @@ window.showSection = (id) => {
 // Fixed Content Rendering (CORS issue handled)
 function renderUI(d) {
     const imgEl = document.getElementById('pImg');
-    // Important: Photo CORS setting
+    // Photo CORS setting
     imgEl.crossOrigin = "anonymous"; 
     imgEl.src = d.profilePic || "https://cdn-icons-png.flaticon.com/512/3135/3135715.png";
     
-    document.getElementById('pName').innerText = d.username;
-    document.getElementById('pEmail').innerText = d.email;
-    document.getElementById('pDob').innerText = d.dob;
-    document.getElementById('pCategory').innerText = d.category;
-    document.getElementById('pFather').innerText = d.father;
-    document.getElementById('pMother').innerText = d.mother;
+    document.getElementById('pName').innerText = d.username || "";
+    document.getElementById('pEmail').innerText = d.email || "";
+    document.getElementById('pDob').innerText = d.dob || "";
+    document.getElementById('pCategory').innerText = d.category || "";
+    document.getElementById('pFather').innerText = d.father || "";
 }
 
-// THE FINAL FIX FOR PDF CIRCLE & CONTENT
+// PDF EXPORT FIX: Circle & Content fixed
 window.exportPDF = () => {
     const area = document.getElementById('printableArea');
     
     Swal.fire({
         title: 'Generating ID...',
-        text: 'Encrypting and rendering digital card',
+        text: 'Syncing details to digital card...',
         background: '#1e293b',
         color: '#fff',
         didOpen: () => { Swal.showLoading(); }
     });
 
     html2canvas(area, {
-        scale: 3, // High quality, low blur
-        useCORS: true, // Crucial for PDF photo
-        allowTaint: true, // Fallback photo fix
+        scale: 3, // High quality render
+        useCORS: true, // Crucial for PDF photo rendering
         logging: false,
-        backgroundColor: "#050816" // Stable card background
+        backgroundColor: "#050816" 
     }).then(canvas => {
         const { jsPDF } = window.jspdf;
         const pdf = new jsPDF('p', 'mm', 'a4');
-        
         const imgWidth = 190;
         const imgHeight = (canvas.height * imgWidth) / canvas.width;
         
-        const pageHeight = 295;
-        // Position card to fit perfectly on A4 page
-        const yPos = (pageHeight - imgHeight) / 2; // Vertically centered
-
         const imgData = canvas.toDataURL('image/png', 1.0);
         
-        // Add card to A4
-        pdf.addImage(imgData, 'PNG', 10, yPos > 10 ? yPos : 10, imgWidth, imgHeight);
-        pdf.save('RAJATECH_Digital_Profile.pdf');
+        pdf.addImage(imgData, 'PNG', 10, 10, imgWidth, imgHeight);
+        pdf.save('RAJATECH_Profile_ID.pdf');
         Swal.close();
     }).catch(err => {
         console.error("PDF Export Error: ", err);
@@ -180,4 +156,4 @@ window.exportPDF = () => {
 };
 
 document.getElementById('logoutBtn').onclick = () => signOut(auth).then(() => location.href="index.html");
-                     
+            
