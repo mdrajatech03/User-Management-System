@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -16,14 +16,12 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 
 let isLogin = true;
-const toggleBtn = document.getElementById('toggleText');
 
-toggleBtn.onclick = () => {
+document.getElementById('toggleText').onclick = () => {
     isLogin = !isLogin;
-    document.getElementById('authTitle').innerText = isLogin ? "Login to RAJATECH" : "Register Account";
-    document.getElementById('nameBox').style.display = isLogin ? "none" : "block";
+    document.getElementById('authTitle').innerText = isLogin ? "Secure Login" : "Create Account";
+    document.getElementById('nameGroup').style.display = isLogin ? "none" : "block";
     document.getElementById('authBtn').innerText = isLogin ? "Sign In" : "Register Now";
-    toggleBtn.innerText = isLogin ? "New user? Register here" : "Member? Login now";
 };
 
 document.getElementById('authForm').onsubmit = async (e) => {
@@ -33,38 +31,15 @@ document.getElementById('authForm').onsubmit = async (e) => {
 
     try {
         if (isLogin) {
-            const userCredential = await signInWithEmailAndPassword(auth, email, pass);
-            const user = userCredential.user;
-            
-            // Unregistered user check
-            const docRef = doc(db, "userProfiles", user.uid);
-            const docSnap = await getDoc(docRef);
-
-            if (!docSnap.exists()) {
-                Swal.fire({
-                    title: 'System Notice',
-                    text: 'Account authenticated, but profile form is incomplete. Proceed to fill details.',
-                    icon: 'warning',
-                    confirmButtonText: 'Fill Form',
-                    confirmButtonColor: '#00f2fe',
-                    background: '#1e293b',
-                    color: '#fff',
-                    backdrop: `rgba(0,242,254,0.1)`
-                }).then(() => {
-                    location.href = "portfolio.html";
-                });
-            } else { location.href = "portfolio.html"; }
+            const cred = await signInWithEmailAndPassword(auth, email, pass);
+            // Check if profile exists
+            const snap = await getDoc(doc(db, "userProfiles", cred.user.uid));
+            if(!snap.exists()) {
+                Swal.fire('Login Success', 'Please complete your profile details.', 'info').then(() => { location.href="portfolio.html"; });
+            } else { location.href="portfolio.html"; }
         } else {
             await createUserWithEmailAndPassword(auth, email, pass);
-            Swal.fire({
-                title: 'Welcome!',
-                text: 'Account created. Directing to profile setup...',
-                icon: 'success',
-                timer: 1500,
-                showConfirmButton: false,
-                background: '#1e293b',
-                color: '#fff'
-            }).then(() => { location.href = "portfolio.html"; });
+            Swal.fire('Success', 'Account Created!', 'success').then(() => { location.href="portfolio.html"; });
         }
-    } catch (err) { Swal.fire({ title: 'Auth Error', text: err.message, icon: 'error', background: '#1e293b', color: '#fff' }); }
+    } catch (err) { Swal.fire('Auth Error', err.message, 'error'); }
 };
