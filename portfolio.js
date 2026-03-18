@@ -2,7 +2,6 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebas
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-// Same Firebase Config
 const firebaseConfig = {
     apiKey: "AIzaSyCMwFJfbkdFjxWzNhMccXs9FbhqntSKdRM",
     authDomain: "portfolio-auth-19a5e.firebaseapp.com",
@@ -24,17 +23,13 @@ window.showSection = (id) => {
         const el = document.getElementById(s);
         if(el) el.style.display = 'none';
     });
-    const target = document.getElementById(id);
-    if(target) target.style.display = 'flex';
+    document.getElementById(id).style.display = 'flex';
 };
 
 onAuthStateChanged(auth, async (user) => {
     if (user) {
         userUID = user.uid;
-        if(user.email === "rajaalinagar99@gmail.com") {
-            const adminBtn = document.getElementById('adminBtn');
-            if(adminBtn) adminBtn.style.display = "block";
-        }
+        if(user.email === "rajaalinagar99@gmail.com") document.getElementById('adminBtn').style.display = "block";
         
         const snap = await getDoc(doc(db, "userProfiles", user.uid));
         if (snap.exists()) {
@@ -49,8 +44,10 @@ onAuthStateChanged(auth, async (user) => {
     }
 });
 
-// Photo handling logic (compressed for database)
+// Photo Handling
 document.getElementById('fImage').onchange = (e) => {
+    const file = e.target.files[0];
+    if(!file) return;
     const reader = new FileReader();
     reader.onload = (ev) => {
         const img = new Image();
@@ -63,48 +60,97 @@ document.getElementById('fImage').onchange = (e) => {
             document.getElementById('pImg').src = imgData;
         };
     };
-    reader.readAsDataURL(e.target.files[0]);
+    reader.readAsDataURL(file);
 };
 
 window.triggerPreview = () => {
+    const aadhar = document.getElementById('fAadhar').value;
     const name = document.getElementById('fName').value;
-    if(!name) return Swal.fire('Error', 'Name is required', 'error');
-    
-    document.getElementById('pName').innerText = name;
-    document.getElementById('pEmail').innerText = auth.currentUser.email;
-    document.getElementById('pFather').innerText = document.getElementById('fFather').value;
+
+    // Aadhar Validation (Exactly 12 digits)
+    if(aadhar.length !== 12) {
+        return Swal.fire('Invalid Aadhar', 'Please enter a valid 12-digit Aadhar number.', 'error');
+    }
+    if(!name || !imgData) {
+        return Swal.fire('Missing Data', 'Name and Profile Picture are required.', 'warning');
+    }
+
+    const data = {
+        username: name,
+        userTag: document.getElementById('fUser').value,
+        email: auth.currentUser.email,
+        dob: document.getElementById('fDob').value,
+        blood: document.getElementById('fBlood').value,
+        father: document.getElementById('fFather').value,
+        mother: document.getElementById('fMother').value,
+        college: document.getElementById('fCollege').value,
+        marital: document.getElementById('fMarital').value,
+        category: document.getElementById('fCategory').value,
+        aadhar: aadhar,
+        address: document.getElementById('fAddress').value,
+        profilePic: imgData
+    };
+
+    renderUI(data);
     showSection('viewSection');
     document.getElementById('saveBtn').style.display = "block";
 };
 
 window.finalSave = async () => {
-    Swal.fire({title: 'Saving...', didOpen: () => Swal.showLoading()});
-    const data = {
-        username: document.getElementById('pName').innerText,
-        email: document.getElementById('pEmail').innerText,
-        father: document.getElementById('pFather').innerText,
-        profilePic: document.getElementById('pImg').src
-    };
-    await setDoc(doc(db, "userProfiles", userUID), data);
-    Swal.fire('Success', 'Profile Saved!', 'success');
-    document.getElementById('saveBtn').style.display = "none";
+    Swal.fire({title: 'Securing Profile...', didOpen: () => Swal.showLoading()});
+    try {
+        const data = {
+            username: document.getElementById('pName').innerText,
+            email: document.getElementById('pEmail').innerText,
+            dob: document.getElementById('pDob').innerText,
+            blood: document.getElementById('pBlood').innerText,
+            father: document.getElementById('pFather').innerText,
+            mother: document.getElementById('pMother').innerText,
+            college: document.getElementById('pCollege').innerText,
+            category: document.getElementById('pCategory').innerText,
+            aadhar: document.getElementById('pAadhar').innerText,
+            marital: document.getElementById('pMarital').innerText,
+            address: document.getElementById('pAddress').innerText,
+            profilePic: document.getElementById('pImg').src,
+            updatedAt: new Date().toISOString()
+        };
+        await setDoc(doc(db, "userProfiles", userUID), data);
+        Swal.fire('Identity Verified', 'Your profile is now live.', 'success');
+        document.getElementById('saveBtn').style.display = "none";
+    } catch (e) {
+        Swal.fire('Database Error', 'Could not save profile.', 'error');
+    }
 };
 
 function renderUI(d) {
-    document.getElementById('pImg').src = d.profilePic;
-    document.getElementById('pName').innerText = d.username;
-    document.getElementById('pEmail').innerText = d.email;
-    document.getElementById('pFather').innerText = d.father;
+    document.getElementById('pImg').src = d.profilePic || "";
+    document.getElementById('pName').innerText = d.username || "Full Name";
+    document.getElementById('pEmail').innerText = d.email || "";
+    document.getElementById('pDob').innerText = d.dob || "-";
+    document.getElementById('pBlood').innerText = d.blood || "-";
+    document.getElementById('pFather').innerText = d.father || "-";
+    document.getElementById('pMother').innerText = d.mother || "-";
+    document.getElementById('pCollege').innerText = d.college || "-";
+    document.getElementById('pCategory').innerText = d.category || "-";
+    document.getElementById('pAadhar').innerText = d.aadhar || "-";
+    document.getElementById('pMarital').innerText = d.marital || "-";
+    document.getElementById('pAddress').innerText = d.address || "-";
 }
 
-document.getElementById('logoutBtn').onclick = () => signOut(auth);
+document.getElementById('logoutBtn').onclick = () => {
+    signOut(auth).then(() => location.href = "index.html");
+};
 
 window.exportPDF = () => {
     const area = document.getElementById('printableArea');
-    html2canvas(area, { scale: 3, useCORS: true }).then(canvas => {
+    Swal.fire({title: 'Generating PDF...', didOpen: () => Swal.showLoading()});
+    
+    html2canvas(area, { scale: 3, useCORS: true, backgroundColor: "#0f172a" }).then(canvas => {
         const { jsPDF } = window.jspdf;
-        const pdf = new jsPDF();
-        pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 15, 15, 180, 0);
-        pdf.save('RajaTech_Profile.pdf');
+        const pdf = new jsPDF('p', 'mm', 'a4');
+        const imgData = canvas.toDataURL('image/png');
+        pdf.addImage(imgData, 'PNG', 15, 20, 180, 0);
+        pdf.save(`${document.getElementById('pName').innerText}_ID_Card.pdf`);
+        Swal.close();
     });
 };
