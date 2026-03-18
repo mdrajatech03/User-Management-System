@@ -17,33 +17,36 @@ const db = getFirestore(app);
 
 onAuthStateChanged(auth, async (user) => {
     if (user && user.email === "rajaalinagar99@gmail.com") {
-        loadUsers();
-    } else {
-        location.href = "portfolio.html";
-    }
+        const snap = await getDocs(collection(db, "userProfiles"));
+        const list = document.getElementById('userList');
+        document.getElementById('userCount').innerText = snap.size;
+        list.innerHTML = "";
+        snap.forEach(userDoc => {
+            const d = userDoc.data();
+            list.innerHTML += `<tr>
+                <td><img src="${d.profilePic}" class="row-img"></td>
+                <td>${d.username}</td><td>${d.email}</td><td>${d.category}</td>
+                <td><button onclick="deleteUser('${userDoc.id}')" class="btn-logout" style="padding:5px;">Delete</button></td>
+            </tr>`;
+        });
+    } else { location.href = "portfolio.html"; }
 });
 
-async function loadUsers() {
-    const snap = await getDocs(collection(db, "userProfiles"));
-    const list = document.getElementById('userList');
-    document.getElementById('userCount').innerText = snap.size;
-    list.innerHTML = "";
-    snap.forEach(userDoc => {
-        const d = userDoc.data();
-        list.innerHTML += `
-            <tr style="border-bottom:1px solid rgba(255,255,255,0.1);">
-                <td style="padding:10px;"><img src="${d.profilePic}" style="width:40px; height:40px; border-radius:50%; object-fit:cover;"></td>
-                <td style="padding:10px;">${d.username}</td>
-                <td style="padding:10px;">${d.email}</td>
-                <td style="padding:10px;">${d.category}</td>
-                <td style="padding:10px;"><button onclick="deleteUser('${userDoc.id}')" style="background:red; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;">Delete</button></td>
-            </tr>`;
-    });
-}
-
 window.deleteUser = async (id) => {
-    if(confirm("Permanently delete this user record?")) {
-        await deleteDoc(doc(db, "userProfiles", id));
-        location.reload();
-    }
+    Swal.fire({
+        title: 'Delete user?',
+        text: 'This action is permanent.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#ef4444',
+        cancelButtonColor: '#1e293b',
+        confirmButtonText: 'Yes, Delete',
+        background: '#1e293b',
+        color: '#fff'
+    }).then(async (result) => {
+        if (result.isConfirmed) {
+            await deleteDoc(doc(db, "userProfiles", id));
+            location.reload();
+        }
+    });
 };
