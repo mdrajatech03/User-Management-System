@@ -1,29 +1,48 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
 * { margin:0; padding:0; box-sizing:border-box; font-family:'Poppins', sans-serif; }
-body { background:#050816; color:#fff; }
-.full-page { display:flex; justify-content:center; align-items:center; min-height:100vh; padding:20px; flex-direction:column; }
-.glass-card { background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); backdrop-filter:blur(15px); padding:30px; border-radius:20px; width:100%; max-width:600px; text-align:center; box-shadow:0 20px 50px rgba(0,0,0,0.5); }
+body { background:#050816; color:#fff; overflow-x:hidden; }
+.full-page { display:flex; justify-content:center; align-items:center; min-height:100vh; padding:100px 20px 20px; flex-direction:column; }
+.glass-card { background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); backdrop-filter:blur(10px); padding:30px; border-radius:20px; width:100%; max-width:500px; text-align:center; }
+.auth-box { max-width:400px; }
 .input-box { margin-bottom:15px; text-align:left; width:100%; }
 .input-box label { font-size:0.8rem; color:#00f2fe; margin-bottom:5px; display:block; }
-.input-box input, select { width:100%; padding:12px; background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.1); color:#fff; border-radius:8px; outline:none; }
-.btn-submit { width:100%; padding:12px; background:#00f2fe; color:#000; border:none; border-radius:8px; font-weight:700; cursor:pointer; transition:0.3s; }
-.btn-submit:hover { background:#00d2de; }
-.nav-bar { width:100%; padding:20px 8%; display:flex; justify-content:space-between; align-items:center; background:#020617; position:fixed; top:0; z-index:1000; }
+.input-box input, select { width:100%; padding:12px; background:rgba(0,0,0,0.3); border:none; color:#fff; border-radius:8px; outline:none; }
+.btn-submit { width:100%; padding:12px; background:#00f2fe; color:#000; border:none; border-radius:8px; font-weight:700; cursor:pointer; }
+.nav-bar { width:100%; padding:15px 8%; display:flex; justify-content:space-between; align-items:center; background:#020617; position:fixed; top:0; z-index:1000; }
+.btn-logout { background:transparent; border:2px solid #ef4444; color:#ef4444; padding:8px 15px; border-radius:5px; cursor:pointer; }
+.p-details { text-align:left; margin-top:20px; padding-top:20px; border-top:1px solid rgba(255,255,255,0.1); line-height:2.2; font-size:14px; color:#ffffff; }
+
+/* Fixed Content for PDF Capture */
+#printableArea {
+    padding: 40px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+}
+
+/* CIRCLE PROFILE IMAGE FIXED FOR PDF CAPTURE */
 .p-img {
-    width: 120px !important; /* Fixed width */
-    height: 120px !important; /* Fixed height */
-    border-radius: 50% !important; /* FORCE Circle on all renders */
-    border: 3px solid #00f2fe !important; /* The blue ring */
-    object-fit: cover !important; /* Keep image aspect ratio */
-    margin: 0 auto 15px !important; /* Centered with bottom space */
-    display: block !important; /* Block element for proper capturing */
-    background: #1e293b; /* Fallback background while loading */
-    
+    width: 120px !important;
+    height: 120px !important;
+    border-radius: 50% !important;
+    border: 3px solid #00f2fe !important;
+    object-fit: cover !important;
+    margin-bottom: 15px !important;
+    display: block !important;
+    background: #1e293b;
+    /* Added fixed border-radius for canvas */
     -webkit-border-radius: 50% !important; 
     -moz-border-radius: 50% !important;
 }
 
+/* Other Buttons */
+.btn-save { background:#10b981; color:#fff; border:none; padding:10px 20px; border-radius:8px; font-weight:600; cursor:pointer; }
+.btn-edit { background:#f59e0b; color:#fff; border:none; padding:10px 20px; border-radius:8px; font-weight:600; cursor:pointer; margin: 0 10px; }
+.btn-download { background:#6366f1; color:#fff; border:none; padding:10px 20px; border-radius:8px; font-weight:600; cursor:pointer; }
 .grid-layout { display:grid; grid-template-columns:1fr 1fr; gap:15px; margin:20px 0; }
-.p-details { text-align:left; line-height:2; border-top:1px solid rgba(255,255,255,0.1); padding-top:20px; }
-.btn-logout { background:transparent; border:2px solid #ef4444; color:#ef4444; padding:8px 15px; border-radius:5px; cursor:pointer; font-weight:bold; }
-.btn-save { background:#10b981; color:#fff; padding:10px 20px; border-radius:8px; border:none; cursor:pointer; font-weight:600; }
+.admin-container { padding:100px 8% 20px; }
+.stats { font-size:1.2rem; color:#00f2fe; margin-top:20px; }
+.table-wrap { overflow-x:auto; margin-top:20px; }
+table { width:100%; border-collapse:collapse; background:rgba(255,255,255,0.05); }
+th, td { padding:12px; border-bottom:1px solid rgba(255,255,255,0.1); text-align:left; }
+.row-img { width:35px; height:35px; border-radius:50%; object-fit:cover; }
