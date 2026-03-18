@@ -3,26 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Panel | RAJATECH</title>
+    <title>Admin Dashboard | RAJATECH</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
-    <div class="admin-container">
-        <header class="nav-bar">
-            <h2>Admin <span>Dashboard</span></h2>
-            <button onclick="location.href='portfolio.html'" class="btn-save">Back to Profile</button>
-        </header>
-        <div class="stats">Total Members: <span id="userCount">0</span></div>
-        <div class="table-wrap">
-            <table>
-                <thead>
-                    <tr><th>Photo</th><th>Name</th><th>Email</th><th>Category</th><th>Action</th></tr>
+    <nav class="nav-bar">
+        <div class="nav-left"><h2>RAJA<span>ADMIN</span></h2></div>
+        <div class="nav-center"><h3 style="color: #00f2fe;">User Management</h3></div>
+        <div class="nav-right"><button onclick="location.href='portfolio.html'" class="admin-btn">Back to Profile</button></div>
+    </nav>
+
+    <div class="main-content">
+        <div class="glass-card" style="max-width: 95%; overflow-x: auto;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
+                <h4>Total Registered Users: <span id="userCount" style="color: #00f2fe;">0</span></h4>
+            </div>
+            
+            <table style="width: 100%; border-collapse: collapse; min-width: 1000px; text-align: left;">
+                <thead style="border-bottom: 2px solid #00f2fe;">
+                    <tr>
+                        <th style="padding: 12px;">Photo</th>
+                        <th style="padding: 12px;">Name</th>
+                        <th style="padding: 12px;">Email/Aadhar</th>
+                        <th style="padding: 12px;">Category</th>
+                        <th style="padding: 12px;">Blood/DOB</th>
+                        <th style="padding: 12px;">Address</th>
+                        <th style="padding: 12px;">Action</th>
+                    </tr>
                 </thead>
-                <tbody id="userList"></tbody>
+                <tbody id="userList">
+                    </tbody>
             </table>
         </div>
     </div>
+
     <script type="module" src="admin.js"></script>
 </body>
 </html>
