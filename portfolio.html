@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile | RAJATECH</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+    <nav class="nav-bar">
+        <h2>RAJA<span style="color:#00f2fe">TECH</span></h2>
+        <div class="nav-links">
+            <button id="adminBtn" class="btn-admin" style="display:none; background:#00f2fe; color:#000; border:none; padding:8px 15px; border-radius:5px; cursor:pointer; font-weight:bold; margin-right:10px;" onclick="location.href='admin.html'">Admin Panel</button>
+            <button id="logoutBtn" class="btn-logout">Logout</button>
+        </div>
+    </nav>
+
+    <div id="welcomeScreen" class="full-page" style="display:none;">
+        <div class="glass-card">
+            <h1>Welcome!</h1>
+            <p>Setup your digital identity to continue.</p>
+            <button class="btn-submit" onclick="showSection('formSection')">Fill Your Form Now</button>
+        </div>
+    </div>
+
+    <div id="formSection" class="full-page" style="display:none;">
+        <div class="glass-card form-wide">
+            <h2>User Registration Form</h2>
+            <div class="grid-layout">
+                <div class="input-box"><label>Profile Image</label><input type="file" id="fImage" accept="image/*"></div>
+                <div class="input-box"><label>Full Name</label><input type="text" id="fName"></div>
+                <div class="input-box"><label>Username</label><input type="text" id="fUser"></div>
+                <div class="input-box"><label>Date of Birth</label><input type="date" id="fDob"></div>
+                <div class="input-box"><label>Gender</label><select id="fGender"><option>Male</option><option>Female</option></select></div>
+                <div class="input-box"><label>Category</label><select id="fCategory"><option>Student</option><option>Employee</option><option>Business</option></select></div>
+                <div class="input-box"><label>Father's Name</label><input type="text" id="fFather"></div>
+                <div class="input-box"><label>Mother's Name</label><input type="text" id="fMother"></div>
+            </div>
+            <button class="btn-submit" onclick="triggerPreview()">Preview & Verify</button>
+        </div>
+    </div>
+
+    <div id="viewSection" class="full-page" style="display:none;">
+        <div class="glass-card" id="printableArea">
+            <img id="pImg" src="" class="p-img">
+            <h2 id="pName" style="color:#00f2fe"></h2>
+            <p id="pEmail" style="color:#94a3b8; margin-bottom:20px;"></p>
+            <div class="p-details">
+                <p><strong>DOB:</strong> <span id="pDob"></span></p>
+                <p><strong>Category:</strong> <span id="pCategory"></span></p>
+                <p><strong>Father:</strong> <span id="pFather"></span></p>
+                <p><strong>Mother:</strong> <span id="pMother"></span></p>
+            </div>
+        </div>
+        <div class="btn-group">
+            <button id="saveBtn" class="btn-save" onclick="finalSave()">Save to Database</button>
+            <button id="editBtn" class="btn-edit" style="display:none; background:#f59e0b; color:#fff; padding:10px 20px; border-radius:8px; border:none; cursor:pointer;" onclick="showSection('formSection')">Edit Profile</button>
+            <button class="btn-download" style="background:#6366f1; color:#fff; padding:10px 20px; border-radius:8px; border:none; cursor:pointer; margin-left:10px;" onclick="exportPDF()">Download PDF</button>
+        </div>
+    </div>
+
+    <script type="module" src="portfolio.js"></script>
+</body>
+</html>
