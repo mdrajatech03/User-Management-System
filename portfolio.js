@@ -20,22 +20,24 @@ let imgData = "";
 
 // --- 1. FIXED SECTION SWITCHER (With Debugging) ---
 window.showSection = async (id) => {
-    console.log("Switching Section:", id);
     const sections = ['welcomeScreen', 'formSection', 'viewSection'];
     
+    // Sabko hide karo
     sections.forEach(s => {
         const el = document.getElementById(s);
-        if(el) el.style.setProperty('display', 'none', 'important');
+        if(el) {
+            el.style.setProperty('display', 'none', 'important');
+        }
     });
 
+    // Jo chahiye sirf use dikhao
     const target = document.getElementById(id);
-    if(target) target.style.setProperty('display', 'flex', 'important');
-
-    // Edit Profile Logic: Form khulne par purana data bharega
-    if(id === 'formSection' && userUID) {
-        // ... (purana auto-fill logic yahan rahega, jaise pichle messages mein bataya tha)
+    if(target) {
+        target.style.setProperty('display', 'flex', 'important');
+        console.log("Section visible now:", id);
     }
 };
+
 
 // --- 2. AUTH OBSERVER (Same as before) ---
 onAuthStateChanged(auth, async (user) => {
