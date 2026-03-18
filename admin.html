@@ -8,24 +8,16 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
-    <div class="admin-container" style="padding: 20px;">
+    <div class="admin-container">
         <header class="nav-bar">
             <h2>Admin <span>Dashboard</span></h2>
-            <button onclick="location.href='portfolio.html'" class="btn-submit" style="width:auto; padding:5px 15px;">Back</button>
+            <button onclick="location.href='portfolio.html'" class="btn-save">Back to Profile</button>
         </header>
-        <div class="stats" style="margin:20px 0; font-size:1.2rem; color:#00f2fe;">
-            Total Registered Users: <span id="userCount">0</span>
-        </div>
-        <div class="table-wrap" style="overflow-x:auto;">
-            <table style="width:100%; border-collapse:collapse; background:rgba(255,255,255,0.05);">
+        <div class="stats">Total Members: <span id="userCount">0</span></div>
+        <div class="table-wrap">
+            <table>
                 <thead>
-                    <tr style="border-bottom:2px solid #00f2fe; color:#00f2fe; text-align:left;">
-                        <th style="padding:15px;">Photo</th>
-                        <th style="padding:15px;">Name</th>
-                        <th style="padding:15px;">Email</th>
-                        <th style="padding:15px;">Category</th>
-                        <th style="padding:15px;">Action</th>
-                    </tr>
+                    <tr><th>Photo</th><th>Name</th><th>Email</th><th>Category</th><th>Action</th></tr>
                 </thead>
                 <tbody id="userList"></tbody>
             </table>
