@@ -33,48 +33,38 @@ document.getElementById('authForm').onsubmit = async (e) => {
 
     try {
         if (isLogin) {
-            // SIGN IN LOGIC
             const userCredential = await signInWithEmailAndPassword(auth, email, pass);
             const user = userCredential.user;
             
-            // Unregistered user data check
+            // Unregistered user check
             const docRef = doc(db, "userProfiles", user.uid);
             const docSnap = await getDoc(docRef);
 
             if (!docSnap.exists()) {
-                // Professional sweetalert popup for unregistered user
                 Swal.fire({
                     title: 'System Notice',
-                    text: 'Your account is active, but your profile details are missing. Please complete the form.',
+                    text: 'Account authenticated, but profile form is incomplete. Proceed to fill details.',
                     icon: 'warning',
-                    showConfirmButton: true,
-                    confirmButtonText: 'Fill Form Now',
+                    confirmButtonText: 'Fill Form',
                     confirmButtonColor: '#00f2fe',
                     background: '#1e293b',
                     color: '#fff',
-                    backdrop: `rgba(0,242,254,0.15)`
+                    backdrop: `rgba(0,242,254,0.1)`
                 }).then(() => {
-                    location.href = "portfolio.html"; // Redirect to form
+                    location.href = "portfolio.html";
                 });
-            } else {
-                location.href = "portfolio.html"; // Direct login to dashboard
-            }
+            } else { location.href = "portfolio.html"; }
         } else {
-            // REGISTER LOGIC (Smooth Popup for new account)
             await createUserWithEmailAndPassword(auth, email, pass);
             Swal.fire({
                 title: 'Welcome!',
-                text: 'Account created successfully. Redirecting...',
+                text: 'Account created. Directing to profile setup...',
                 icon: 'success',
-                timer: 2000,
+                timer: 1500,
                 showConfirmButton: false,
                 background: '#1e293b',
                 color: '#fff'
-            }).then(() => {
-                location.href = "portfolio.html"; // Redirect to form setup
-            });
+            }).then(() => { location.href = "portfolio.html"; });
         }
-    } catch (err) { 
-        Swal.fire({ title: 'Authentication Error', text: err.message, icon: 'error', background: '#1e293b', color: '#fff' }); 
-    }
+    } catch (err) { Swal.fire({ title: 'Auth Error', text: err.message, icon: 'error', background: '#1e293b', color: '#fff' }); }
 };
