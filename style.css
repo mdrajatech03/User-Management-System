@@ -9,7 +9,20 @@ body { background:#050816; color:#fff; }
 .btn-submit { width:100%; padding:12px; background:#00f2fe; color:#000; border:none; border-radius:8px; font-weight:700; cursor:pointer; transition:0.3s; }
 .btn-submit:hover { background:#00d2de; }
 .nav-bar { width:100%; padding:20px 8%; display:flex; justify-content:space-between; align-items:center; background:#020617; position:fixed; top:0; z-index:1000; }
-.p-img { width:120px; height:120px; border-radius:50%; border:3px solid #00f2fe; margin-bottom:15px; object-fit:cover; }
+.p-img {
+    width: 120px !important; /* Fixed width */
+    height: 120px !important; /* Fixed height */
+    border-radius: 50% !important; /* FORCE Circle on all renders */
+    border: 3px solid #00f2fe !important; /* The blue ring */
+    object-fit: cover !important; /* Keep image aspect ratio */
+    margin: 0 auto 15px !important; /* Centered with bottom space */
+    display: block !important; /* Block element for proper capturing */
+    background: #1e293b; /* Fallback background while loading */
+    
+    -webkit-border-radius: 50% !important; 
+    -moz-border-radius: 50% !important;
+}
+
 .grid-layout { display:grid; grid-template-columns:1fr 1fr; gap:15px; margin:20px 0; }
 .p-details { text-align:left; line-height:2; border-top:1px solid rgba(255,255,255,0.1); padding-top:20px; }
 .btn-logout { background:transparent; border:2px solid #ef4444; color:#ef4444; padding:8px 15px; border-radius:5px; cursor:pointer; font-weight:bold; }
