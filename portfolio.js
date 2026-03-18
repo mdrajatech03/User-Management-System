@@ -2,6 +2,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebas
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
+// Same Firebase Config
 const firebaseConfig = {
     apiKey: "AIzaSyCMwFJfbkdFjxWzNhMccXs9FbhqntSKdRM",
     authDomain: "portfolio-auth-19a5e.firebaseapp.com",
@@ -18,138 +19,92 @@ const db = getFirestore(app);
 let userUID = "";
 let imgData = "";
 
-// Helper to switch sections safely
 window.showSection = (id) => {
-    const sections = ['welcomeScreen', 'formSection', 'viewSection'];
-    sections.forEach(s => {
+    ['welcomeScreen', 'formSection', 'viewSection'].forEach(s => {
         const el = document.getElementById(s);
-        if (el) el.style.display = 'none';
+        if(el) el.style.display = 'none';
     });
     const target = document.getElementById(id);
-    if (target) target.style.display = 'flex';
+    if(target) target.style.display = 'flex';
 };
 
-// --- AUTH CHECK ---
 onAuthStateChanged(auth, async (user) => {
     if (user) {
         userUID = user.uid;
-        
-        // Admin Button Check
-        const adminBtn = document.getElementById('adminBtn');
-        if (adminBtn && user.email === "rajaalinagar99@gmail.com") {
-            adminBtn.style.display = "block";
+        if(user.email === "rajaalinagar99@gmail.com") {
+            const adminBtn = document.getElementById('adminBtn');
+            if(adminBtn) adminBtn.style.display = "block";
         }
-
-        try {
-            const snap = await getDoc(doc(db, "userProfiles", user.uid));
-            if (snap.exists()) {
-                renderUI(snap.data());
-                window.showSection('viewSection');
-            } else {
-                // Professional Unregistered Popup
-                Swal.fire({
-                    title: 'Welcome to RAJATECH',
-                    text: 'Account found, but profile is empty. Please fill your details.',
-                    icon: 'info',
-                    background: '#050816',
-                    color: '#fff',
-                    confirmButtonColor: '#00f2fe'
-                }).then(() => {
-                    window.showSection('welcomeScreen');
-                });
-            }
-        } catch (e) {
-            console.error("Firestore Error:", e);
+        
+        const snap = await getDoc(doc(db, "userProfiles", user.uid));
+        if (snap.exists()) {
+            renderUI(snap.data());
+            showSection('viewSection');
+            document.getElementById('saveBtn').style.display = "none";
+        } else {
+            showSection('welcomeScreen');
         }
     } else {
         window.location.href = "index.html";
     }
 });
 
-// --- LOGOUT LOGIC ---
-const logoutBtn = document.getElementById('logoutBtn');
-if (logoutBtn) {
-    logoutBtn.addEventListener('click', () => {
-        signOut(auth).then(() => {
-            window.location.href = "index.html";
-        });
-    });
-}
-
-// --- FORM LOGIC ---
-window.triggerPreview = () => {
-    const name = document.getElementById('fName')?.value;
-    if (!name) return Swal.fire('Error', 'Name is required', 'error');
-
-    const data = {
-        username: name,
-        email: auth.currentUser.email,
-        dob: document.getElementById('fDob')?.value || "",
-        category: document.getElementById('fCategory')?.value || "Student",
-        father: document.getElementById('fFather')?.value || "",
-        profilePic: imgData || "https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
+// Photo handling logic (compressed for database)
+document.getElementById('fImage').onchange = (e) => {
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+        const img = new Image();
+        img.src = ev.target.result;
+        img.onload = () => {
+            const canvas = document.createElement('canvas');
+            canvas.width = 300; canvas.height = 300;
+            canvas.getContext('2d').drawImage(img, 0, 0, 300, 300);
+            imgData = canvas.toDataURL('image/jpeg', 0.8);
+            document.getElementById('pImg').src = imgData;
+        };
     };
-    renderUI(data);
-    window.showSection('viewSection');
-    const saveBtn = document.getElementById('saveBtn');
-    if (saveBtn) saveBtn.style.display = "inline-block";
+    reader.readAsDataURL(e.target.files[0]);
+};
+
+window.triggerPreview = () => {
+    const name = document.getElementById('fName').value;
+    if(!name) return Swal.fire('Error', 'Name is required', 'error');
+    
+    document.getElementById('pName').innerText = name;
+    document.getElementById('pEmail').innerText = auth.currentUser.email;
+    document.getElementById('pFather').innerText = document.getElementById('fFather').value;
+    showSection('viewSection');
+    document.getElementById('saveBtn').style.display = "block";
 };
 
 window.finalSave = async () => {
     Swal.fire({title: 'Saving...', didOpen: () => Swal.showLoading()});
-    try {
-        const data = {
-            username: document.getElementById('pName').innerText,
-            email: document.getElementById('pEmail').innerText,
-            dob: document.getElementById('pDob').innerText,
-            category: document.getElementById('pCategory').innerText,
-            father: document.getElementById('pFather').innerText,
-            profilePic: document.getElementById('pImg').src
-        };
-        await setDoc(doc(db, "userProfiles", userUID), data);
-        Swal.fire('Success', 'Profile Saved Permanently', 'success');
-        const saveBtn = document.getElementById('saveBtn');
-        if (saveBtn) saveBtn.style.display = "none";
-    } catch (e) {
-        Swal.fire('Error', 'Check Database Rules', 'error');
-    }
+    const data = {
+        username: document.getElementById('pName').innerText,
+        email: document.getElementById('pEmail').innerText,
+        father: document.getElementById('pFather').innerText,
+        profilePic: document.getElementById('pImg').src
+    };
+    await setDoc(doc(db, "userProfiles", userUID), data);
+    Swal.fire('Success', 'Profile Saved!', 'success');
+    document.getElementById('saveBtn').style.display = "none";
 };
 
 function renderUI(d) {
-    if (document.getElementById('pImg')) document.getElementById('pImg').src = d.profilePic;
-    if (document.getElementById('pName')) document.getElementById('pName').innerText = d.username;
-    if (document.getElementById('pEmail')) document.getElementById('pEmail').innerText = d.email;
-    if (document.getElementById('pDob')) document.getElementById('pDob').innerText = d.dob;
-    if (document.getElementById('pCategory')) document.getElementById('pCategory').innerText = d.category;
-    if (document.getElementById('pFather')) document.getElementById('pFather').innerText = d.father;
+    document.getElementById('pImg').src = d.profilePic;
+    document.getElementById('pName').innerText = d.username;
+    document.getElementById('pEmail').innerText = d.email;
+    document.getElementById('pFather').innerText = d.father;
 }
 
-// Photo Input Check
-const fImage = document.getElementById('fImage');
-if (fImage) {
-    fImage.onchange = (e) => {
-        const reader = new FileReader();
-        reader.onload = (ev) => {
-            const img = new Image();
-            img.src = ev.target.result;
-            img.onload = () => {
-                const canvas = document.createElement('canvas');
-                canvas.width = 300; canvas.height = 300;
-                canvas.getContext('2d').drawImage(img, 0, 0, 300, 300);
-                imgData = canvas.toDataURL('image/jpeg', 0.8);
-            };
-        };
-        reader.readAsDataURL(e.target.files[0]);
-    };
-}
+document.getElementById('logoutBtn').onclick = () => signOut(auth);
 
-// PDF Export (Circle Fix included)
 window.exportPDF = () => {
     const area = document.getElementById('printableArea');
-    html2canvas(area, { scale: 3, useCORS: true, backgroundColor: "#050816" }).then(canvas => {
+    html2canvas(area, { scale: 3, useCORS: true }).then(canvas => {
         const { jsPDF } = window.jspdf;
-        const pdf = new jsPDF('p', 'mm', 'a4');
-        pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 10, 10, 190, 0);
-        pdf.save('RAJATECH_ID.pdf');
+        const pdf = new jsPDF();
+        pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 15, 15, 180, 0);
+        pdf.save('RajaTech_Profile.pdf');
     });
 };
