@@ -2,7 +2,6 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebas
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-// --- FIREBASE CONFIGURATION ---
 const firebaseConfig = {
     apiKey: "AIzaSyCMwFJfbkdFjxWzNhMccXs9FbhqntSKdRM",
     authDomain: "portfolio-auth-19a5e.firebaseapp.com",
@@ -19,25 +18,40 @@ const db = getFirestore(app);
 let userUID = "";
 let imgData = "";
 
-// --- NAVIGATION LOGIC ---
-window.showSection = (id) => {
+// --- NAVIGATION & EDIT AUTO-FILL ---
+window.showSection = async (id) => {
     ['welcomeScreen', 'formSection', 'viewSection'].forEach(s => {
         const el = document.getElementById(s);
         if(el) el.style.display = 'none';
     });
+
+    // Edit Profile Logic: Form khulne par purana data bharega
+    if(id === 'formSection' && userUID) {
+        const snap = await getDoc(doc(db, "userProfiles", userUID));
+        if(snap.exists()){
+            const d = snap.data();
+            document.getElementById('fName').value = d.username || "";
+            document.getElementById('fAadhar').value = d.aadhar || "";
+            document.getElementById('fDob').value = d.dob || "";
+            document.getElementById('fBlood').value = d.blood || "";
+            document.getElementById('fFather').value = d.father || "";
+            document.getElementById('fMother').value = d.mother || "";
+            document.getElementById('fCollege').value = d.college || "";
+            document.getElementById('fCategory').value = d.category || "Student";
+            document.getElementById('fAddress').value = d.address || "";
+            document.getElementById('fMarital').value = d.marital || "Single";
+            imgData = d.profilePic || ""; // Purani photo store rakho
+        }
+    }
     const target = document.getElementById(id);
     if(target) target.style.display = 'flex';
 };
 
-// Back Button (X) logic
+// Close (X) Button Logic
 window.goBack = () => {
-    const docRef = doc(db, "userProfiles", userUID);
-    getDoc(docRef).then(snap => {
-        if(snap.exists()) {
-            window.showSection('viewSection'); // Agar profile hai toh ID Card dikhao
-        } else {
-            window.showSection('welcomeScreen'); // Warna welcome screen
-        }
+    getDoc(doc(db, "userProfiles", userUID)).then(snap => {
+        if(snap.exists()) window.showSection('viewSection');
+        else window.showSection('welcomeScreen');
     }).catch(() => window.showSection('welcomeScreen'));
 };
 
@@ -45,14 +59,10 @@ window.goBack = () => {
 onAuthStateChanged(auth, async (user) => {
     if (user) {
         userUID = user.uid;
-        
-        // Admin Access Check
         if(user.email === "rajaalinagar99@gmail.com") {
             const adminBtn = document.getElementById('adminBtn');
             if(adminBtn) adminBtn.style.display = "block";
         }
-        
-        // Auto-load Profile
         const snap = await getDoc(doc(db, "userProfiles", user.uid));
         if (snap.exists()) {
             renderUI(snap.data());
@@ -88,19 +98,21 @@ if(fImage) {
     };
 }
 
-// --- PREVIEW LOGIC (Aadhar Validation Added) ---
+// --- GENERATE ID (PREVIEW) LOGIC ---
 window.triggerPreview = () => {
     const aadhar = document.getElementById('fAadhar').value;
     const name = document.getElementById('fName').value;
 
-    // Aadhar 12-Digit Check
     if(aadhar.toString().length !== 12) {
-        return Swal.fire('Error', 'Aadhar number must be exactly 12 digits', 'error');
+        return Swal.fire('Error', 'Aadhar number must be 12 digits', 'error');
     }
     
-    if(!name || !imgData) {
-        return Swal.fire('Missing Info', 'Please provide Name and Profile Picture', 'warning');
+    if(!name) {
+        return Swal.fire('Missing Name', 'Please enter your full name', 'warning');
     }
+
+    // Nayi photo ya purani photo check
+    const currentPhoto = imgData || document.getElementById('pImg').src;
 
     const data = {
         username: name,
@@ -114,17 +126,26 @@ window.triggerPreview = () => {
         aadhar: aadhar,
         marital: document.getElementById('fMarital').value,
         address: document.getElementById('fAddress').value,
-        profilePic: imgData
+        profilePic: currentPhoto
     };
 
     renderUI(data);
     showSection('viewSection');
     document.getElementById('saveBtn').style.display = "block";
+
+    Swal.fire({
+        toast: true,
+        position: 'top-end',
+        icon: 'success',
+        title: 'Preview Generated!',
+        showConfirmButton: false,
+        timer: 1500
+    });
 };
 
-// --- SAVE TO DATABASE ---
+// --- FINAL SAVE ---
 window.finalSave = async () => {
-    Swal.fire({title: 'Syncing...', didOpen: () => Swal.showLoading()});
+    Swal.fire({title: 'Saving Data...', didOpen: () => Swal.showLoading()});
     try {
         const data = {
             username: document.getElementById('pName').innerText,
@@ -142,30 +163,28 @@ window.finalSave = async () => {
             updatedAt: new Date().toISOString()
         };
         await setDoc(doc(db, "userProfiles", userUID), data);
-        Swal.fire('Success', 'Profile Saved Permanently', 'success');
+        Swal.fire('Success', 'Profile Updated Successfully!', 'success');
         document.getElementById('saveBtn').style.display = "none";
     } catch (e) {
-        Swal.fire('Error', 'Could not save data. Check rules.', 'error');
+        Swal.fire('Error', 'Database Sync Failed!', 'error');
     }
 };
 
-// --- UI RENDERING HELPER ---
 function renderUI(d) {
-    if(document.getElementById('pImg')) document.getElementById('pImg').src = d.profilePic || "";
-    if(document.getElementById('pName')) document.getElementById('pName').innerText = d.username || "";
-    if(document.getElementById('pEmail')) document.getElementById('pEmail').innerText = d.email || "";
-    if(document.getElementById('pDob')) document.getElementById('pDob').innerText = d.dob || "-";
-    if(document.getElementById('pBlood')) document.getElementById('pBlood').innerText = d.blood || "-";
-    if(document.getElementById('pFather')) document.getElementById('pFather').innerText = d.father || "-";
-    if(document.getElementById('pMother')) document.getElementById('pMother').innerText = d.mother || "-";
-    if(document.getElementById('pCollege')) document.getElementById('pCollege').innerText = d.college || "-";
-    if(document.getElementById('pCategory')) document.getElementById('pCategory').innerText = d.category || "-";
-    if(document.getElementById('pAadhar')) document.getElementById('pAadhar').innerText = d.aadhar || "-";
-    if(document.getElementById('pMarital')) document.getElementById('pMarital').innerText = d.marital || "-";
-    if(document.getElementById('pAddress')) document.getElementById('pAddress').innerText = d.address || "-";
+    document.getElementById('pImg').src = d.profilePic || "";
+    document.getElementById('pName').innerText = d.username || "";
+    document.getElementById('pEmail').innerText = d.email || "";
+    document.getElementById('pDob').innerText = d.dob || "-";
+    document.getElementById('pBlood').innerText = d.blood || "-";
+    document.getElementById('pFather').innerText = d.father || "-";
+    document.getElementById('pMother').innerText = d.mother || "-";
+    document.getElementById('pCollege').innerText = d.college || "-";
+    document.getElementById('pCategory').innerText = d.category || "-";
+    document.getElementById('pAadhar').innerText = d.aadhar || "-";
+    document.getElementById('pMarital').innerText = d.marital || "-";
+    document.getElementById('pAddress').innerText = d.address || "-";
 }
 
-// --- LOGOUT & PDF ---
 document.getElementById('logoutBtn').onclick = () => signOut(auth);
 
 window.exportPDF = () => {
@@ -177,4 +196,3 @@ window.exportPDF = () => {
         pdf.save('RAJATECH_ID.pdf');
     });
 };
-        
