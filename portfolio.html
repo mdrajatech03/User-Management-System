@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Profile | RAJATECH</title>
+    <title>Dashboard | RAJATECH</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -11,52 +11,72 @@
 </head>
 <body>
     <nav class="nav-bar">
-        <div class="nav-logo">
-            <h2>RAJA<span style="color:#00f2fe">TECH</span></h2>
-        </div>
-        <div class="nav-admin-center">
-            <button id="adminBtn" class="btn-admin" style="display:none;" onclick="location.href='admin.html'">Admin Panel</button>
-        </div>
-        <div class="nav-logout-right">
-            <button id="logoutBtn" class="btn-logout">Logout</button>
-        </div>
+        <div class="nav-left"><h2>RAJA<span>TECH</span></h2></div>
+        <div class="nav-center"><button id="adminBtn" class="admin-btn" style="display:none;" onclick="location.href='admin.html'">Admin Panel</button></div>
+        <div class="nav-right"><button id="logoutBtn" class="logout-btn">Logout</button></div>
     </nav>
 
-    <div id="welcomeScreen" class="full-page" style="display:none;">
-        <div class="glass-card">
-            <h1>Welcome!</h1>
-            <p>Your profile is not setup yet.</p>
-            <button class="btn-save" style="width:100%; margin-top:15px;" onclick="showSection('formSection')">Create Profile Now</button>
+    <section id="welcomeScreen" class="main-content" style="display:none;">
+        <div class="glass-card text-center">
+            <h2>Welcome to your Digital Profile</h2>
+            <p>You haven't created your ID card yet.</p>
+            <button class="primary-btn" onclick="showSection('formSection')" style="margin-top:20px;">Create Profile Now</button>
         </div>
-    </div>
+    </section>
 
-    <div id="formSection" class="full-page" style="display:none;">
-        <div class="glass-card">
-            <h2>Complete Profile</h2>
-            <input type="file" id="fImage" accept="image/*" style="margin:15px 0;">
-            <input type="text" id="fName" placeholder="Full Name" style="width:100%; padding:10px; margin-bottom:10px; border-radius:5px; border:none;">
-            <input type="text" id="fFather" placeholder="Father's Name" style="width:100%; padding:10px; margin-bottom:10px; border-radius:5px; border:none;">
-            <button class="btn-save" style="width:100%" onclick="triggerPreview()">Preview Profile</button>
+    <section id="formSection" class="main-content" style="display:none;">
+        <div class="glass-card form-card">
+            <h3>Identity Enrollment Form</h3>
+            <div class="form-grid">
+                <div class="input-group full-width"><label>Profile Picture</label><input type="file" id="fImage" accept="image/*"></div>
+                <div class="input-group"><label>Full Name</label><input type="text" id="fName"></div>
+                <div class="input-group"><label>Username</label><input type="text" id="fUser"></div>
+                <div class="input-group"><label>Date of Birth</label><input type="date" id="fDob"></div>
+                <div class="input-group"><label>Blood Group</label><input type="text" id="fBlood" placeholder="e.g. O+"></div>
+                <div class="input-group"><label>Father's Name</label><input type="text" id="fFather"></div>
+                <div class="input-group"><label>Mother's Name</label><input type="text" id="fMother"></div>
+                <div class="input-group"><label>College/Org Name</label><input type="text" id="fCollege"></div>
+                <div class="input-group">
+                    <label>Marital Status</label>
+                    <select id="fMarital"><option>Single</option><option>Married</option></select>
+                </div>
+                <div class="input-group">
+                    <label>Category</label>
+                    <select id="fCategory"><option>Student</option><option>Employee</option><option>Business</option></select>
+                </div>
+                <div class="input-group"><label>Aadhar Number</label><input type="number" id="fAadhar"></div>
+                <div class="input-group full-width"><label>Full Address</label><textarea id="fAddress"></textarea></div>
+            </div>
+            <button class="primary-btn" onclick="triggerPreview()">Generate Preview</button>
         </div>
-    </div>
+    </section>
 
-    <div id="viewSection" class="full-page" style="display:none;">
-        <div class="glass-card" id="printableArea">
-            <img id="pImg" src="" class="p-img">
-            <h2 id="pName" style="color:#00f2fe"></h2>
-            <p id="pEmail" style="opacity:0.7"></p>
-            <div class="p-details">
-                <p>Father: <span id="pFather"></span></p>
-                <p>Status: <span style="color:#10b981">Verified Member</span></p>
+    <section id="viewSection" class="main-content" style="display:none;">
+        <div class="id-card" id="printableArea">
+            <div class="card-header"><h4>DIGITAL IDENTITY CARD</h4></div>
+            <div class="card-body">
+                <img id="pImg" src="" class="profile-circle">
+                <h2 id="pName"></h2>
+                <p id="pEmail" class="email-text"></p>
+                <div class="info-grid">
+                    <p><strong>DOB:</strong> <span id="pDob"></span></p>
+                    <p><strong>Blood:</strong> <span id="pBlood"></span></p>
+                    <p><strong>Father:</strong> <span id="pFather"></span></p>
+                    <p><strong>Mother:</strong> <span id="pMother"></span></p>
+                    <p><strong>College:</strong> <span id="pCollege"></span></p>
+                    <p><strong>Category:</strong> <span id="pCategory"></span></p>
+                    <p><strong>Aadhar:</strong> <span id="pAadhar"></span></p>
+                    <p><strong>Status:</strong> <span id="pMarital"></span></p>
+                </div>
+                <p class="address-box"><strong>Address:</strong> <span id="pAddress"></span></p>
             </div>
         </div>
-
-        <div class="btn-group">
-            <button id="saveBtn" class="btn-save" onclick="finalSave()">Save Data</button>
-            <button class="btn-download" onclick="exportPDF()">Download PDF</button>
-            <button id="editBtn" class="btn-edit" onclick="showSection('formSection')">Edit Profile</button>
+        <div class="action-buttons">
+            <button id="saveBtn" class="save-btn" onclick="finalSave()">Save to Database</button>
+            <button class="download-btn" onclick="exportPDF()">Download PDF</button>
+            <button class="edit-btn" onclick="showSection('formSection')">Edit Profile</button>
         </div>
-    </div>
+    </section>
 
     <script type="module" src="portfolio.js"></script>
 </body>
