@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel | RAJATECH</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+    <div class="admin-container" style="padding: 20px;">
+        <header class="nav-bar">
+            <h2>Admin <span>Dashboard</span></h2>
+            <button onclick="location.href='portfolio.html'" class="btn-submit" style="width:auto; padding:5px 15px;">Back</button>
+        </header>
+        <div class="stats" style="margin:20px 0; font-size:1.2rem; color:#00f2fe;">
+            Total Registered Users: <span id="userCount">0</span>
+        </div>
+        <div class="table-wrap" style="overflow-x:auto;">
+            <table style="width:100%; border-collapse:collapse; background:rgba(255,255,255,0.05);">
+                <thead>
+                    <tr style="border-bottom:2px solid #00f2fe; color:#00f2fe; text-align:left;">
+                        <th style="padding:15px;">Photo</th>
+                        <th style="padding:15px;">Name</th>
+                        <th style="padding:15px;">Email</th>
+                        <th style="padding:15px;">Category</th>
+                        <th style="padding:15px;">Action</th>
+                    </tr>
+                </thead>
+                <tbody id="userList"></tbody>
+            </table>
+        </div>
+    </div>
+    <script type="module" src="admin.js"></script>
+</body>
+</html>
