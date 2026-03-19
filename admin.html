@@ -3,38 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard | RAJATECH</title>
+    <title>Admin Panel | RAJATECH</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
-<body>
+<body style="background: #050816;">
     <nav class="nav-bar">
-        <div class="nav-left"><h2>RAJA<span>ADMIN</span></h2></div>
-        <div class="nav-center"><h3 style="color: #00f2fe;">User Management</h3></div>
-        <div class="nav-right"><button onclick="location.href='portfolio.html'" class="admin-btn">Back to Profile</button></div>
+        <div class="logo"><h3>ADMIN<span style="color:var(--primary)">PANEL</span></h3></div>
+        <div class="nav-btns">
+            <button class="logout-btn" style="background:var(--secondary); color:#fff;" onclick="location.href='portfolio.html'">Dashboard</button>
+            <button id="logoutBtn" class="logout-btn">Logout</button>
+        </div>
     </nav>
 
-    <div class="main-content">
-        <div class="glass-card" style="max-width: 95%; overflow-x: auto;">
-            <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
-                <h4>Total Registered Users: <span id="userCount" style="color: #00f2fe;">0</span></h4>
+    <div class="main-content" style="display: flex !important; align-items: flex-start;">
+        <div class="glass-card" style="max-width: 1000px; margin-top: 20px;">
+            <div style="display:flex; justify-content:space-between; margin-bottom:20px;">
+                <h2>User Database</h2>
+                <button class="btn" style="background:var(--primary); padding:5px 15px;" onclick="location.reload()">Refresh List</button>
             </div>
             
-            <table style="width: 100%; border-collapse: collapse; min-width: 1000px; text-align: left;">
-                <thead style="border-bottom: 2px solid #00f2fe;">
-                    <tr>
-                        <th style="padding: 12px;">Photo</th>
-                        <th style="padding: 12px;">Name</th>
-                        <th style="padding: 12px;">Email/Aadhar</th>
-                        <th style="padding: 12px;">Category</th>
-                        <th style="padding: 12px;">Blood/DOB</th>
-                        <th style="padding: 12px;">Address</th>
-                        <th style="padding: 12px;">Action</th>
-                    </tr>
-                </thead>
-                <tbody id="userList">
-                    </tbody>
-            </table>
+            <div style="overflow-x:auto;">
+                <table style="width:100%; border-collapse: collapse; color: #fff;">
+                    <thead>
+                        <tr style="text-align:left; border-bottom: 1px solid var(--primary);">
+                            <th style="padding:12px;">Profile</th>
+                            <th style="padding:12px;">Name</th>
+                            <th style="padding:12px;">Aadhar</th>
+                            <th style="padding:12px;">Category</th>
+                            <th style="padding:12px;">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="userTable">
+                        </tbody>
+                </table>
+            </div>
         </div>
     </div>
 
