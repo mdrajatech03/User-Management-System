@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 import { getFirestore, collection, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -15,80 +15,66 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-onAuthStateChanged(auth, async (user) => {
-    // Sirf aapka email hi admin access kar sakega
+// Check if User is Admin
+onAuthStateChanged(auth, (user) => {
     if (user && user.email === "rajaalinagar99@gmail.com") {
-        loadUsers();
+        fetchUsers();
     } else {
-        Swal.fire('Access Denied', 'Only Admin can view this page.', 'error').then(() => {
-            location.href = "portfolio.html";
-        });
+        window.location.href = "index.html";
     }
 });
 
-async function loadUsers() {
-    const list = document.getElementById('userList');
-    const count = document.getElementById('userCount');
-    
-    try {
-        const snap = await getDocs(collection(db, "userProfiles"));
-        list.innerHTML = "";
-        count.innerText = snap.size;
+async function fetchUsers() {
+    const table = document.getElementById('userTable');
+    table.innerHTML = "<tr><td colspan='5' style='text-align:center; padding:20px;'>Fetching data...</td></tr>";
 
-        snap.forEach(userDoc => {
-            const d = userDoc.data();
-            list.innerHTML += `
+    try {
+        const querySnapshot = await getDocs(collection(db, "userProfiles"));
+        table.innerHTML = "";
+
+        if (querySnapshot.empty) {
+            table.innerHTML = "<tr><td colspan='5' style='text-align:center; padding:20px;'>No users found in database.</td></tr>";
+            return;
+        }
+
+        querySnapshot.forEach((document) => {
+            const user = document.data();
+            const row = `
                 <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
-                    <td style="padding: 10px;">
-                        <img src="${d.profilePic || 'https://via.placeholder.com/40'}" style="width:40px; height:40px; border-radius:50%; object-fit:cover; border: 1px solid #00f2fe;">
-                    </td>
-                    <td style="padding: 10px;">
-                        <div style="font-weight:bold;">${d.username}</div>
-                        <div style="font-size:10px; color:#aaa;">ID: ${userDoc.id.substring(0,8)}</div>
-                    </td>
-                    <td style="padding: 10px;">
-                        <div style="font-size:12px;">${d.email}</div>
-                        <div style="font-size:11px; color:#00f2fe;">Aadhar: ${d.aadhar || 'N/A'}</div>
-                    </td>
-                    <td style="padding: 10px; font-size:12px;">
-                        ${d.category}<br><small>${d.college || ''}</small>
-                    </td>
-                    <td style="padding: 10px; font-size:12px;">
-                        <span style="color:#ef4444; font-weight:bold;">${d.blood || '-'}</span><br>${d.dob || '-'}
-                    </td>
-                    <td style="padding: 10px; font-size:10px; max-width:150px; overflow:hidden;">
-                        ${d.address || '-'}
-                    </td>
-                    <td style="padding: 10px;">
-                        <button onclick="window.deleteUser('${userDoc.id}')" style="background:#ef4444; border:none; color:white; padding:5px 10px; border-radius:4px; cursor:pointer; font-size:11px;">Delete</button>
+                    <td style="padding:10px;"><img src="${user.profilePic}" style="width:45px; height:45px; border-radius:50%; object-fit:cover; border:1px solid var(--primary);"></td>
+                    <td style="padding:10px;"><b>${user.username}</b><br><small style="color:#94a3b8">${user.email}</small></td>
+                    <td style="padding:10px;">${user.aadhar}</td>
+                    <td style="padding:10px;">${user.category}</td>
+                    <td style="padding:10px;">
+                        <button class="delete-btn" data-id="${document.id}" style="background:var(--danger); color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;">Delete</button>
                     </td>
                 </tr>
             `;
+            table.innerHTML += row;
         });
-    } catch (err) {
-        console.error("Error loading users:", err);
+
+        // Add Delete Event
+        document.querySelectorAll('.delete-btn').forEach(btn => {
+            btn.onclick = () => deleteUserRecord(btn.getAttribute('data-id'));
+        });
+
+    } catch (error) {
+        console.error("Error:", error);
+        table.innerHTML = `<tr><td colspan='5' style='text-align:center; color:red;'>Error: ${error.message}</td></tr>`;
     }
 }
 
-// Global function to delete user
-window.deleteUser = async (id) => {
-    const result = await Swal.fire({
-        title: 'Are you sure?',
-        text: "This user's profile will be permanently removed!",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#ef4444',
-        cancelButtonColor: '#3085d6',
-        confirmButtonText: 'Yes, Delete it!'
-    });
-
-    if (result.isConfirmed) {
+async function deleteUserRecord(id) {
+    if (confirm("Are you sure you want to delete this user?")) {
         try {
             await deleteDoc(doc(db, "userProfiles", id));
-            Swal.fire('Deleted!', 'User record has been removed.', 'success');
-            loadUsers(); // Refresh table
+            Swal.fire('Deleted!', 'User record removed.', 'success');
+            fetchUsers();
         } catch (e) {
-            Swal.fire('Error', 'Could not delete user.', 'error');
+            Swal.fire('Error', 'Delete failed!', 'error');
         }
     }
-};
+}
+
+// Logout logic
+document.getElementById('logoutBtn').onclick = () => signOut(auth).then(() => window.location.href = "index.html");
