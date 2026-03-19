@@ -145,43 +145,40 @@ function renderUI(d) {
 window.exportPDF = () => {
     const area = document.getElementById('printableArea');
     
-    // Quality ke liye loader
     Swal.fire({
-        title: 'Generating ID Card...',
-        text: 'Standard Size: 2.125" x 3.375"',
+        title: 'Generating Vertical PDF...',
         didOpen: () => Swal.showLoading()
     });
 
-    // High resolution ke liye scale 4 use kiya hai
     html2canvas(area, {
         scale: 4, 
         useCORS: true,
         backgroundColor: null
     }).then(canvas => {
-        // Inch to Point conversion (1 inch = 72 points)
-        // 3.375" = 243pt, 2.125" = 153pt
-        const widthPtr = 243; 
-        const heightPtr = 153;
+        // Standard ID Card Size in Points (3.375" x 2.125")
+        const cardWidth = 243; 
+        const cardHeight = 153;
 
-        // Custom size ka PDF create karein [Width, Height]
+        // orientation: 'p' (Portrait/Vertical)
         const pdf = new jspdf.jsPDF({
-            orientation: 'landscape',
+            orientation: 'p',
             unit: 'pt',
-            format: [widthPtr, heightPtr]
+            format: [cardHeight, cardWidth] // Page size card ke hisaab se vertical
         });
 
         const imgData = canvas.toDataURL('image/png');
 
-        // Image ko pure PDF area mein fit karein
-        pdf.addImage(imgData, 'PNG', 0, 0, widthPtr, heightPtr);
+        // Image ko rotate karke vertical page par fit karna
+        // (image, format, x, y, width, height, alias, compression, rotation)
+        pdf.addImage(imgData, 'PNG', 0, 0, cardWidth, cardHeight, null, 'FAST', 0);
 
-        // Download the PDF
         const fileName = document.getElementById('pName').innerText || "ID_Card";
-        pdf.save(`${fileName}_Professional.pdf`);
+        pdf.save(`${fileName}_Vertical.pdf`);
         
         Swal.close();
     });
 };
+
 
 // --- 8. Logout ---
 document.getElementById('logoutBtn').onclick = () => signOut(auth).then(() => window.location.href = "index.html");
