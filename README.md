@@ -62,6 +62,9 @@ A secure, responsive, and modern full-stack web application designed for managin
 
 ![](id.jpg)
 
+**Admin Panel**
+
+![](admin.jpg)
 
 ## 🤝 Contributing
 
