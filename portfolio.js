@@ -18,7 +18,6 @@ const db = getFirestore(app);
 let userUID = "";
 let imgData = "";
 
-// --- 1. FIXED SECTION SWITCHER (With Debugging) ---
 window.showSection = async (id) => {
     const sections = ['welcomeScreen', 'formSection', 'viewSection'];
     
