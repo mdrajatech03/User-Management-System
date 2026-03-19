@@ -147,37 +147,44 @@ window.exportPDF = () => {
     const area = document.getElementById('printableArea');
     
     Swal.fire({
-        title: 'Fixing PDF Layout...',
-        text: 'Generating full vertical view',
+        title: 'Generating ID Card...',
+        text: 'Wait a moment...',
         didOpen: () => Swal.showLoading()
     });
 
+    // 1. html2canvas settings fix
     html2canvas(area, {
-        scale: 4, 
+        scale: 4, // High Quality
         useCORS: true,
         backgroundColor: null,
-        logging: false
+        scrollX: 0,
+        scrollY: -window.scrollY, // Page scroll fix taaki cut na ho
+        windowWidth: document.documentElement.offsetWidth,
+        windowHeight: document.documentElement.offsetHeight
     }).then(canvas => {
-        // Points mein accurate size (3.375" x 2.125")
-        const imgWidth = 243; 
-        const imgHeight = 153;
+        // 2. Card ka asli ratio nikalna
+        const imgWidth = 243; // Standard 3.375" in points
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
-        // Portrait 'p' mode mein naya PDF jisme page size bada rakha hai taaki kete nahi
+        // 3. PDF Page size ko card ke hisaab se set karna (Portrait Mode)
         const pdf = new jspdf.jsPDF({
             orientation: 'p',
             unit: 'pt',
-            format: [imgHeight + 40, imgWidth + 40] // Margin ke liye +40 points add kiye hain
+            format: [imgWidth + 20, imgHeight + 20] // Thoda extra space taaki kete nahi
         });
 
         const imgData = canvas.toDataURL('image/png');
 
-        // Card ko page ke beech mein set karne ke liye 20 points ka margin
-        pdf.addImage(imgData, 'PNG', 20, 20, imgWidth, imgHeight);
+        // 4. Image ko PDF ke center mein fit karna
+        pdf.addImage(imgData, 'PNG', 10, 10, imgWidth, imgHeight);
 
         const fileName = document.getElementById('pName').innerText || "ID_Card";
-        pdf.save(`${fileName}_Fixed.pdf`);
+        pdf.save(`${fileName}_Professional.pdf`);
         
         Swal.close();
+    }).catch(err => {
+        console.error(err);
+        Swal.fire('Error', 'PDF generation failed!', 'error');
     });
 };
 
