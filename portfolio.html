@@ -11,57 +11,62 @@
 </head>
 <body>
     <nav class="nav-bar">
-        <div class="logo"><h2>RAJA<span>TECH</span></h2></div>
-        <div>
-            <button id="adminBtn" class="admin-btn" onclick="location.href='admin.html'">Admin Panel</button>
+        <div class="logo"><h3>RAJA<span style="color:var(--primary)">TECH</span></h3></div>
+        <div class="nav-btns">
+            <button id="adminBtn" class="admin-btn" onclick="location.href='admin.html'">Admin</button>
             <button id="logoutBtn" class="logout-btn">Logout</button>
         </div>
     </nav>
 
     <section id="welcomeScreen" class="main-content">
-        <div class="glass-card" style="text-align:center;">
-            <h1>Welcome to Digital ID Portal</h1>
-            <p>Create your professional identity card in seconds.</p>
-            <button class="primary-btn" onclick="showSection('formSection')">Create Profile Now</button>
+        <div class="glass-card" style="text-align:center">
+            <h1>No Profile Found</h1>
+            <p style="margin:15px 0; color:#94a3b8;">It looks like you haven't generated your digital ID yet.</p>
+            <button class="btn btn-primary" onclick="showSection('formSection')">Get Started Now</button>
         </div>
     </section>
 
-    <section id="formSection" class="main-content" style="display:none;">
+    <section id="formSection" class="main-content">
         <div class="glass-card">
-            <div class="close-form" onclick="goBack()">×</div>
-            <h3>Enrollment Form</h3>
+            <h2>ID Enrollment Form</h2>
             <div class="form-grid">
-                <div class="input-group"><label>Profile Photo</label><input type="file" id="fImage" accept="image/*"></div>
-                <div class="input-group"><label>Full Name</label><input type="text" id="fName"></div>
-                <div class="input-group"><label>Aadhar (12 Digits)</label><input type="number" id="fAadhar"></div>
-                <div class="input-group"><label>DOB</label><input type="date" id="fDob"></div>
-                <div class="input-group"><label>Blood Group</label><input type="text" id="fBlood"></div>
-                <div class="input-group"><label>Father's Name</label><input type="text" id="fFather"></div>
-                <div class="input-group"><label>Address</label><textarea id="fAddress"></textarea></div>
+                <div class="input-box"><label>Full Name</label><input type="text" id="fName"></div>
+                <div class="input-box"><label>Aadhar (12 Digits)</label><input type="number" id="fAadhar"></div>
+                <div class="input-box"><label>DOB</label><input type="date" id="fDob"></div>
+                <div class="input-box"><label>Blood Group</label><input type="text" id="fBlood" placeholder="e.g. B+"></div>
+                <div class="input-box"><label>Father's Name</label><input type="text" id="fFather"></div>
+                <div class="input-box"><label>Category</label>
+                    <select id="fCategory">
+                        <option value="Student">Student</option>
+                        <option value="Professional">Professional</option>
+                        <option value="VIP Guest">VIP Guest</option>
+                    </select>
+                </div>
+                <div class="input-box" style="grid-column: 1 / -1;"><label>Profile Photo</label><input type="file" id="fImage" accept="image/*"></div>
             </div>
-            <button class="primary-btn" onclick="triggerPreview()">Generate ID Card</button>
+            <button class="btn btn-primary" style="margin-top:20px;" onclick="triggerPreview()">Generate ID Card</button>
         </div>
     </section>
 
-    <section id="viewSection" class="main-content" style="display:none;">
-        <div class="id-card" id="printableArea">
-            <div style="background:var(--primary); color:#000; padding:10px; font-weight:bold;">IDENTITY CARD</div>
-            <div style="padding:20px;">
-                <img id="pImg" src="" style="width:100px; height:100px; border-radius:50%; border:2px solid var(--primary); object-fit:cover;">
-                <h3 id="pName" style="margin-top:10px;"></h3>
-                <p id="pEmail" style="font-size:12px; color:var(--primary);"></p>
-                <div style="display:grid; grid-template-columns:1fr 1fr; font-size:10px; text-align:left; margin-top:15px; border-top:1px solid #333; padding-top:10px;">
-                    <p>DOB: <span id="pDob"></span></p>
-                    <p>Blood: <span id="pBlood"></span></p>
-                    <p>Aadhar: <span id="pAadhar"></span></p>
-                    <p>Father: <span id="pFather"></span></p>
+    <section id="viewSection" class="main-content">
+        <div id="printableArea" class="id-card">
+            <div class="id-header">DIGITAL IDENTITY SYSTEM</div>
+            <div class="id-body">
+                <img id="pImg" class="user-img" src="">
+                <h2 id="pName"></h2>
+                <p id="pEmail" style="font-size:11px; color:var(--primary); margin-bottom:10px;"></p>
+                <div class="id-details">
+                    <p>DOB: <br><b id="pDob"></b></p>
+                    <p>Blood: <br><b id="pBlood"></b></p>
+                    <p>Aadhar: <br><b id="pAadhar"></b></p>
+                    <p>Role: <br><b id="pCategory"></b></p>
                 </div>
             </div>
         </div>
-        <div class="action-buttons">
-            <button id="saveBtn" class="primary-btn" style="background:var(--success); color:#fff;" onclick="finalSave()">Save Data</button>
-            <button class="primary-btn" style="background:#6366f1; color:#fff;" onclick="exportPDF()">Download PDF</button>
-            <button class="primary-btn" style="background:var(--warning); color:#fff;" onclick="showSection('formSection')">Edit Profile</button>
+        <div class="action-grid">
+            <button id="saveBtn" class="btn" style="background:var(--success); color:#000;" onclick="finalSave()">Confirm & Save</button>
+            <button class="btn" style="background:#6366f1; color:#fff;" onclick="exportPDF()">Download PDF</button>
+            <button class="btn" style="background:#f59e0b; color:#000;" onclick="showSection('formSection')">Edit Profile</button>
         </div>
     </section>
 
