@@ -10,37 +10,12 @@
 * { margin:0; padding:0; box-sizing:border-box; font-family: 'Segoe UI', sans-serif; }
 body { background: var(--bg); color: #fff; overflow-x: hidden; }
 
-/* --- AUTH PAGE CSS (FIXED) --- */
+/* --- AUTH PAGE --- */
 .auth-container { 
     height: 100vh; display: flex; justify-content: center; align-items: center; 
     background: radial-gradient(circle at top right, #1e293b, #050816);
 }
 .auth-card { width: 100%; max-width: 400px; padding: 40px; text-align: center; }
-.logo { font-size: 2rem; font-weight: 800; margin-bottom: 20px; }
-.logo span { color: var(--primary); }
-.input-group { margin-bottom: 15px; text-align: left; }
-.input-group input, .input-group select, .input-group textarea { 
-    width: 100%; padding: 12px; background: rgba(255,255,255,0.05); 
-    border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #fff; outline: none;
-}
-.input-group input:focus { border-color: var(--primary); background: rgba(255,255,255,0.1); }
-.toggle-link { margin-top: 20px; font-size: 14px; color: var(--primary); cursor: pointer; text-decoration: underline; }
-
-/* --- FORM & BUTTONS --- */
-.form-card { position: relative; padding-top: 50px; }
-.close-form { 
-    position: absolute; top: 15px; right: 20px; 
-    font-size: 24px; color: var(--danger); cursor: pointer; font-weight: bold; 
-}
-
-/* File Input & Preview Button Color Fix (Not White) */
-#fImage { background: #1e293b; color: var(--primary); border: 1px dashed var(--primary); }
-.primary-btn { 
-    background: linear-gradient(45deg, #00f2fe, #0ea5e9); 
-    color: #000; width: 100%; padding: 14px; border-radius: 10px; 
-    font-weight: bold; border: none; cursor: pointer; transition: 0.3s;
-}
-.primary-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,242,254,0.3); }
 
 /* --- NAVIGATION --- */
 .nav-bar { 
@@ -48,25 +23,26 @@ body { background: var(--bg); color: #fff; overflow-x: hidden; }
     padding: 15px 5%; background: rgba(2, 6, 23, 0.95); 
     position: fixed; top: 0; width: 100%; z-index: 1000; border-bottom: 1px solid rgba(255,255,255,0.1); 
 }
-.admin-btn { background: var(--primary); color: #000; padding: 8px 16px; border-radius: 5px; font-weight: bold; border: none; cursor: pointer; }
+.logo h2 span { color: var(--primary); }
+.admin-btn { background: var(--primary); color: #000; padding: 8px 16px; border-radius: 5px; font-weight: bold; border: none; cursor: pointer; display: none; }
 .logout-btn { background: transparent; border: 1px solid var(--danger); color: var(--danger); padding: 8px 16px; border-radius: 5px; cursor: pointer; }
 
-.main-content {
-    min-height: 100vh;
-    display: flex; /* Yahan 'none' ko hata kar 'flex' karein */
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 100px 20px 40px;
-    width: 100%;
+/* --- MAIN CONTENT (FIXED) --- */
+.main-content { 
+    min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; 
+    padding: 100px 20px 40px; width: 100%; transition: opacity 0.4s;
 }
 
-.glass-card { background: var(--glass); backdrop-filter: blur(15px); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 30px; width: 100%; max-width: 800px; }
-.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 20px 0; }
-.id-card { background: #0f172a; width: 350px; border-radius: 15px; border: 2px solid var(--primary); overflow: hidden; }
-.action-buttons { display: flex; justify-content: space-between; width: 100%; max-width: 450px; margin-top: 30px; gap: 10px; }
-.save-btn { background: var(--success); flex: 1; padding: 12px; border-radius: 8px; color: #fff; border: none; cursor: pointer; font-weight: bold; }
-.download-btn { background: #6366f1; flex: 1; padding: 12px; border-radius: 8px; color: #fff; border: none; cursor: pointer; font-weight: bold; }
-.edit-btn { background: var(--warning); flex: 1; padding: 12px; border-radius: 8px; color: #fff; border: none; cursor: pointer; font-weight: bold; }
+.glass-card { background: var(--glass); backdrop-filter: blur(15px); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 30px; width: 100%; max-width: 800px; position: relative; }
+.close-form { position: absolute; top: 15px; right: 20px; font-size: 24px; color: var(--danger); cursor: pointer; font-weight: bold; }
 
-@media (max-width: 600px) { .form-grid { grid-template-columns: 1fr; } .action-buttons { flex-direction: row; font-size: 11px; } }
+.primary-btn { background: linear-gradient(45deg, #00f2fe, #0ea5e9); color: #000; width: 100%; padding: 14px; border-radius: 10px; font-weight: bold; border: none; cursor: pointer; margin-top: 10px; }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 20px 0; text-align: left; }
+.input-group label { display: block; margin-bottom: 5px; font-size: 14px; }
+.input-group input, .input-group select, .input-group textarea { width: 100%; padding: 10px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #fff; border-radius: 5px; }
+
+/* --- ID CARD --- */
+.id-card { background: #0f172a; width: 350px; border-radius: 15px; border: 2px solid var(--primary); overflow: hidden; text-align: center; }
+.action-buttons { display: flex; gap: 10px; margin-top: 20px; width: 100%; max-width: 450px; }
+
+@media (max-width: 600px) { .form-grid { grid-template-columns: 1fr; } }
