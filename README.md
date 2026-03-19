@@ -55,12 +55,12 @@ A secure, responsive, and modern full-stack web application designed for managin
 
 **Login Page**
 
-[](screenshot1.jpg)
+[](login.jpg)
 
 
 **ID Card Preview**
 
-[](screenshot1.jpg)
+[](id.jpg)
 
 
 ## 🤝 Contributing
