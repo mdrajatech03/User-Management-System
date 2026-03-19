@@ -2,6 +2,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebas
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 import { getFirestore, collection, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
+// Aapka Firebase Config
 const firebaseConfig = {
     apiKey: "AIzaSyCMwFJfbkdFjxWzNhMccXs9FbhqntSKdRM",
     authDomain: "portfolio-auth-19a5e.firebaseapp.com",
@@ -15,32 +16,44 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// --- 1. Security & Data Load ---
+// --- Logout Logic (Fixed for Button) ---
+const logoutBtn = document.getElementById('logoutBtn');
+if (logoutBtn) {
+    logoutBtn.addEventListener('click', () => {
+        signOut(auth).then(() => {
+            // Logout ke baad hamesha login page (index.html) par bhejna chahiye
+            window.location.href = "index.html"; 
+        }).catch((error) => {
+            console.error("Logout Error:", error);
+            alert("Logout fail ho gaya!");
+        });
+    });
+}
+
+// --- Auth Check & Data Load ---
 onAuthStateChanged(auth, (user) => {
-    if (user) {
-        if (user.email === "rajaalinagar99@gmail.com") {
-            console.log("Admin logged in: " + user.email);
-            fetchUsers();
-        } else {
-            Swal.fire('Access Denied', 'Sirf Admin hi ye page dekh sakta hai.', 'error')
-                .then(() => window.location.href = "portfolio.html");
-        }
+    if (user && user.email === "rajaalinagar99@gmail.com") {
+        console.log("Admin Verified: " + user.email);
+        fetchUsers();
     } else {
+        // Agar admin nahi hai toh wapas bhej do
         window.location.href = "index.html";
     }
 });
 
-// --- 2. Fetch Users Logic ---
+// --- Table Data Load Logic ---
 async function fetchUsers() {
     const tableBody = document.getElementById('userTable');
-    tableBody.innerHTML = "<tr><td colspan='5' style='text-align:center; padding:20px;'>Data load ho raha hai...</td></tr>";
+    if (!tableBody) return;
+
+    tableBody.innerHTML = "<tr><td colspan='5' style='text-align:center; padding:20px;'>Loading Users...</td></tr>";
 
     try {
         const querySnapshot = await getDocs(collection(db, "userProfiles"));
-        tableBody.innerHTML = ""; // Clear loading message
+        tableBody.innerHTML = ""; // Clear loader
 
         if (querySnapshot.empty) {
-            tableBody.innerHTML = "<tr><td colspan='5' style='text-align:center; padding:20px;'>Database mein koi user nahi mila.</td></tr>";
+            tableBody.innerHTML = "<tr><td colspan='5' style='text-align:center; padding:20px;'>Database khali hai!</td></tr>";
             return;
         }
 
@@ -48,12 +61,12 @@ async function fetchUsers() {
             const user = docSnap.data();
             const row = `
                 <tr style="border-bottom: 1px solid rgba(255,255,255,0.1);">
-                    <td style="padding:12px;"><img src="${user.profilePic || ''}" style="width:45px; height:45px; border-radius:50%; object-fit:cover; border:1px solid var(--primary);"></td>
-                    <td style="padding:12px;"><b>${user.username || 'N/A'}</b></td>
-                    <td style="padding:12px; font-size:12px;">${user.email || 'N/A'}</td>
-                    <td style="padding:12px;">${user.aadhar || 'N/A'}</td>
+                    <td style="padding:12px;"><img src="${user.profilePic || ''}" style="width:45px; height:45px; border-radius:50%; object-fit:cover; border:1px solid #00f2fe;"></td>
+                    <td style="padding:12px;">${user.username || 'No Name'}</td>
+                    <td style="padding:12px; font-size:12px; color:#94a3b8;">${user.email || 'No Email'}</td>
+                    <td style="padding:12px;">${user.aadhar || 'No Aadhar'}</td>
                     <td style="padding:12px;">
-                        <button onclick="deleteUserRecord('${docSnap.id}')" style="background:var(--danger); color:white; border:none; padding:6px 12px; border-radius:4px; cursor:pointer; font-size:12px;">Delete</button>
+                        <button onclick="window.deleteUser('${docSnap.id}')" style="background:#ef4444; color:white; border:none; padding:6px 12px; border-radius:4px; cursor:pointer;">Delete</button>
                     </td>
                 </tr>
             `;
@@ -61,37 +74,18 @@ async function fetchUsers() {
         });
     } catch (error) {
         console.error("Fetch Error:", error);
-        tableBody.innerHTML = `<tr><td colspan='5' style='text-align:center; color:red; padding:20px;'>Error: Permission Denied ya Rules Check Karein.</td></tr>`;
+        tableBody.innerHTML = "<tr><td colspan='5' style='text-align:center; color:red;'>Data nahi dikh raha? Firebase Rules check karein.</td></tr>";
     }
 }
 
-// --- 3. Delete Function ---
-window.deleteUserRecord = async (id) => {
-    const confirm = await Swal.fire({
-        title: 'Delete karein?',
-        text: "User ka sara data delete ho jayega!",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#ef4444',
-        confirmButtonText: 'Haan, Delete kardo!'
-    });
-
-    if (confirm.isConfirmed) {
+// Global Delete Function
+window.deleteUser = async (id) => {
+    if (confirm("Kya aap sach mein is user ko delete karna chahte hain?")) {
         try {
             await deleteDoc(doc(db, "userProfiles", id));
-            Swal.fire('Deleted!', 'User record nikal diya gaya.', 'success');
-            fetchUsers(); // Table refresh karein
+            fetchUsers(); // Refresh table
         } catch (e) {
-            Swal.fire('Error', 'Delete fail ho gaya!', 'error');
+            alert("Delete failed: " + e.message);
         }
     }
 };
-
-// --- 4. Fixed Logout Logic ---
-document.getElementById('logoutBtn').addEventListener('click', () => {
-    signOut(auth).then(() => {
-        window.location.href = "index.html";
-    }).catch((error) => {
-        Swal.fire('Error', 'Logout nahi ho paya!', 'error');
-    });
-});
