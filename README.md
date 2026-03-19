@@ -65,5 +65,5 @@ Contributions are welcome! Feel free to open an Issue or submit a Pull Request.
 
 ## 📄 License
 
-This project is licensed under the [MIT License.](MIT License.)
+This project is licensed under the [MIT License.](MIT.License.)
 Developed with ❤️ by Md Raja
