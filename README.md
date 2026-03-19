@@ -38,7 +38,7 @@ A secure, responsive, and modern full-stack web application designed for managin
 
 **2. Firebase Setup:**
 
-  • Create a Firebase project at [](console.firebase.google.com.)
+  • Create a Firebase project at [console.firebase.google.com.](console.firebase.google.com.)
   • Enable Authentication and Firestore Database.
   • Copy your Firebase Config and update it in auth.js and admin.js.
 
