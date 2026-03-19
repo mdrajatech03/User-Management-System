@@ -9,24 +9,68 @@
 </head>
 <body>
     <div class="auth-container">
-        <div class="glass-card auth-card">
-            <h1 class="logo">RAJA<span>TECH</span></h1>
-            <h2 id="authTitle" style="margin-bottom: 20px;">Secure Login</h2>
-            <form id="authForm">
-                <div class="input-group" id="nameGroup" style="display:none;">
-                    <input type="text" id="regName" placeholder="Full Name">
-                </div>
-                <div class="input-group">
-                    <input type="email" id="authEmail" required placeholder="Email Address">
-                </div>
-                <div class="input-group">
-                    <input type="password" id="authPass" required placeholder="Password">
-                </div>
-                <button type="submit" id="authBtn" class="primary-btn">Sign In</button>
-            </form>
-            <p id="toggleText" class="toggle-link">Don't have an account? Register</p>
+        <div class="auth-card">
+            <h2 id="authTitle">Login to <span style="color:var(--primary)">RAJATECH</span></h2>
+            <p id="authDesc" style="color:#94a3b8; margin-bottom:20px; font-size: 13px;">Manage your Digital Identity</p>
+            
+            <div class="input-box" style="margin-bottom:15px;">
+                <input type="email" id="authEmail" placeholder="Email Address" required>
+            </div>
+            <div class="input-box" style="margin-bottom:20px;">
+                <input type="password" id="authPass" placeholder="Password" required>
+            </div>
+            
+            <button id="authBtn" class="btn btn-primary">Login Now</button>
+            
+            <p style="margin-top:20px; font-size:14px;">
+                <span id="toggleText">Don't have an account?</span> 
+                <a id="toggleLink" style="color:var(--primary); cursor:pointer; font-weight: bold;">Register</a>
+            </p>
         </div>
     </div>
-    <script type="module" src="auth.js"></script>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCMwFJfbkdFjxWzNhMccXs9FbhqntSKdRM",
+            authDomain: "portfolio-auth-19a5e.firebaseapp.com",
+            projectId: "portfolio-auth-19a5e",
+            storageBucket: "portfolio-auth-19a5e.firebasestorage.app",
+            messagingSenderId: "211741915178",
+            appId: "1:211741915178:web:b96f48f37ef2477b83ab53"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        let isLogin = true;
+        const authBtn = document.getElementById('authBtn');
+        const toggleLink = document.getElementById('toggleLink');
+
+        toggleLink.onclick = () => {
+            isLogin = !isLogin;
+            document.getElementById('authTitle').innerText = isLogin ? "Login to RAJATECH" : "Register on RAJATECH";
+            authBtn.innerText = isLogin ? "Login Now" : "Create Account";
+            document.getElementById('toggleText').innerText = isLogin ? "New here?" : "Joined already?";
+            toggleLink.innerText = isLogin ? "Register" : "Login";
+        };
+
+        authBtn.onclick = async () => {
+            const email = document.getElementById('authEmail').value;
+            const pass = document.getElementById('authPass').value;
+            if(!email || !pass) return Swal.fire('Error', 'Input fields empty', 'error');
+
+            Swal.fire({title: 'Authenticating...', didOpen: () => Swal.showLoading()});
+            try {
+                if(isLogin) await signInWithEmailAndPassword(auth, email, pass);
+                else await createUserWithEmailAndPassword(auth, email, pass);
+                window.location.href = "portfolio.html";
+            } catch (e) {
+                Swal.fire('Auth Error', 'Invalid credentials or network issue', 'error');
+            }
+        };
+    </script>
 </body>
 </html>
