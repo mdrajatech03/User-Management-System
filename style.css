@@ -32,6 +32,6 @@ body { background: var(--bg); color: #fff; }
 
 
 
-@media (max-width: 500px) { .form-grid { grid-template-columns: 1fr; } .action-grid { flex-direction: column; }
+@media (max-width: 500px) { .form-grid { grid-template-columns: 1fr; } 
 .action-grid { display: flex; gap: 10px; width: 100%; max-width: 400px; margin-top: 15px; justify-content: center; align-items: center; margin-left: auto; margin-right: auto; }
                           }
