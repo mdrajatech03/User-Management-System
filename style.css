@@ -33,8 +33,8 @@ body { background: var(--bg); color: #fff; }
 
 /* PDF Card size aur corners ko fix karne ke liye */
 #printableArea {
-    width: 324px; /* Standard 3.375 inch size ke liye */
-    height: 204px; /* Standard 2.125 inch size ke liye */
+    width: 204px; /* Standard 3.375 inch size ke liye */
+    height: 324px; /* Standard 2.125 inch size ke liye */
     border-radius: 12px; /* Jo radius aapne maangi thi (0.09") */
     overflow: hidden; /* Taaki corners PDF mein bhi round dikhein */
     background: linear-gradient(135deg, #111827, #1f2937); /* Background fix */
