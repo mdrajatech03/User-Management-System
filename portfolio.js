@@ -144,10 +144,42 @@ function renderUI(d) {
 // --- 7. Export PDF ---
 window.exportPDF = () => {
     const area = document.getElementById('printableArea');
-    html2canvas(area, {scale: 4, useCORS: true}).then(canvas => {
-        const pdf = new jspdf.jsPDF('p', 'mm', 'a4');
-        pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 62, 20, 85, 55);
-        pdf.save(`ID_${document.getElementById('pName').innerText}.pdf`);
+    
+    // Quality ke liye loader
+    Swal.fire({
+        title: 'Generating ID Card...',
+        text: 'Standard Size: 2.125" x 3.375"',
+        didOpen: () => Swal.showLoading()
+    });
+
+    // High resolution ke liye scale 4 use kiya hai
+    html2canvas(area, {
+        scale: 4, 
+        useCORS: true,
+        backgroundColor: null
+    }).then(canvas => {
+        // Inch to Point conversion (1 inch = 72 points)
+        // 3.375" = 243pt, 2.125" = 153pt
+        const widthPtr = 243; 
+        const heightPtr = 153;
+
+        // Custom size ka PDF create karein [Width, Height]
+        const pdf = new jspdf.jsPDF({
+            orientation: 'landscape',
+            unit: 'pt',
+            format: [widthPtr, heightPtr]
+        });
+
+        const imgData = canvas.toDataURL('image/png');
+
+        // Image ko pure PDF area mein fit karein
+        pdf.addImage(imgData, 'PNG', 0, 0, widthPtr, heightPtr);
+
+        // Download the PDF
+        const fileName = document.getElementById('pName').innerText || "ID_Card";
+        pdf.save(`${fileName}_Professional.pdf`);
+        
+        Swal.close();
     });
 };
 
