@@ -17,7 +17,7 @@ body { background: var(--bg); color: #fff; }
 .main-content { min-height: 100vh; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 80px 20px; }
 .glass-card { background: var(--glass); border-radius: 15px; padding: 25px; width: 100%; max-width: 650px; border: 1px solid rgba(255,255,255,0.1); }
 
-.id-card { background: linear-gradient(135deg, #111827, #1f2937); width: 320px; border-radius: 12px; border: 1px solid var(--primary); overflow: hidden; }
+.id-card { background: linear-gradient(135deg, #111827, #1f2937); width: 220px; height: 330px; border-radius: 12px; border: 1px solid var(--primary); overflow: hidden; }
 .id-header { background: var(--primary); color: #000; padding: 8px; font-weight: bold; text-align: center; }
 .id-body { padding: 20px; text-align: center; }
 .user-img { width: 90px; height: 90px; border-radius: 50%; border: 2px solid var(--primary); object-fit: cover; margin-bottom: 8px; }
