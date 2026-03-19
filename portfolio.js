@@ -18,37 +18,29 @@ const db = getFirestore(app);
 let userUID = "";
 let imgData = "";
 
-window.showSection = async (id) => {
-    const sections = ['welcomeScreen', 'formSection', 'viewSection'];
-    
-    // Sabko hide karo
-    sections.forEach(s => {
+// --- Section Navigation ---
+window.showSection = (id) => {
+    ['welcomeScreen', 'formSection', 'viewSection'].forEach(s => {
         const el = document.getElementById(s);
-        if(el) {
-            el.style.setProperty('display', 'none', 'important');
-        }
+        if(el) el.style.setProperty('display', 'none', 'important');
     });
-
-    // Jo chahiye sirf use dikhao
     const target = document.getElementById(id);
-    if(target) {
-        target.style.setProperty('display', 'flex', 'important');
-        console.log("Section visible now:", id);
-    }
+    if(target) target.style.setProperty('display', 'flex', 'important');
 };
 
+window.goBack = () => {
+    getDoc(doc(db, "userProfiles", userUID)).then(snap => {
+        if(snap.exists()) showSection('viewSection');
+        else showSection('welcomeScreen');
+    });
+};
 
-// --- 2. AUTH OBSERVER (Same as before) ---
+// --- Auth State ---
 onAuthStateChanged(auth, async (user) => {
     if (user) {
         userUID = user.uid;
-        // Admin Access Check
-        if(user.email === "rajaalinagar99@gmail.com") {
-            const adminBtn = document.getElementById('adminBtn');
-            if(adminBtn) adminBtn.style.display = "block";
-        }
+        if(user.email === "rajaalinagar99@gmail.com") document.getElementById('adminBtn').style.display = "block";
         
-        // Auto-load Profile
         const snap = await getDoc(doc(db, "userProfiles", user.uid));
         if (snap.exists()) {
             renderUI(snap.data());
@@ -62,76 +54,47 @@ onAuthStateChanged(auth, async (user) => {
     }
 });
 
-// --- 3. GENERATE ID (PREVIEW) LOGIC WITH LOADING ANIMATION ---
-window.triggerPreview = () => {
-    // Regular Expressions for Validation
-    const aadharRegex = /^\d{12}$/; // Exactly 12 digits
-    const nameRegex = /^[a-zA-Z\s]+$/; // Letters and spaces only
+// --- Image Upload ---
+document.getElementById('fImage').onchange = (e) => {
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+        imgData = ev.target.result;
+        document.getElementById('pImg').src = imgData;
+    };
+    reader.readAsDataURL(e.target.files[0]);
+};
 
+// --- Generate Preview ---
+window.triggerPreview = () => {
     const aadhar = document.getElementById('fAadhar').value;
     const name = document.getElementById('fName').value;
-    const email = auth.currentUser.email;
 
-    // 1. Basic Field Checks
-    if(!name || !imgData) {
-        return Swal.fire('Missing Info', 'Please provide Full Name and select a Profile Picture.', 'warning');
-    }
+    if(aadhar.toString().length !== 12) return Swal.fire('Error', 'Aadhar must be 12 digits', 'error');
+    if(!name || !imgData) return Swal.fire('Required', 'Name and Photo are missing', 'warning');
 
-    // 2. Data Validation
-    if(!nameRegex.test(name)) {
-        return Swal.fire('Invalid Name', 'Name should only contain letters and spaces.', 'error');
-    }
+    Swal.fire({title: 'Generating ID...', didOpen: () => Swal.showLoading()});
 
-    if(!aadharRegex.test(aadhar)) {
-        return Swal.fire('Invalid Aadhar', 'Aadhar number must be exactly 12 digits.', 'error');
-    }
-
-    // --- 3. SHOW LOADING ANIMATION ---
-    Swal.fire({
-        title: 'Verifying Details...',
-        text: 'Generating Digital ID Card...',
-        allowOutsideClick: false,
-        didOpen: () => {
-            Swal.showLoading();
-        }
-    });
-
-    // Simulate backend processing (0.8s ka delay feel ke liye)
     setTimeout(() => {
-        // All checks passed, close loading and show preview
         const data = {
             username: name,
-            email: email,
+            email: auth.currentUser.email,
             dob: document.getElementById('fDob').value,
             blood: document.getElementById('fBlood').value,
             father: document.getElementById('fFather').value,
-            mother: document.getElementById('fMother').value,
-            college: document.getElementById('fCollege').value,
-            category: document.getElementById('fCategory').value,
             aadhar: aadhar,
-            marital: document.getElementById('fMarital').value,
             address: document.getElementById('fAddress').value,
             profilePic: imgData
         };
-
         renderUI(data);
         showSection('viewSection');
         document.getElementById('saveBtn').style.display = "block";
-
-        Swal.fire({
-            toast: true,
-            position: 'top-end',
-            icon: 'success',
-            title: 'Preview Generated Successfully',
-            showConfirmButton: false,
-            timer: 1500
-        });
-    }, 800); 
+        Swal.close();
+    }, 800);
 };
 
-// --- 4. FINAL SAVE ---
+// --- Save Data ---
 window.finalSave = async () => {
-    Swal.fire({title: 'Syncing with Server...', allowOutsideClick: false, didOpen: () => Swal.showLoading()});
+    Swal.fire({title: 'Saving...', didOpen: () => Swal.showLoading()});
     try {
         const data = {
             username: document.getElementById('pName').innerText,
@@ -139,23 +102,40 @@ window.finalSave = async () => {
             dob: document.getElementById('pDob').innerText,
             blood: document.getElementById('pBlood').innerText,
             father: document.getElementById('pFather').innerText,
-            mother: document.getElementById('pMother').innerText,
-            college: document.getElementById('pCollege').innerText,
-            category: document.getElementById('pCategory').innerText,
             aadhar: document.getElementById('pAadhar').innerText,
-            marital: document.getElementById('pMarital').innerText,
             address: document.getElementById('pAddress').innerText,
             profilePic: document.getElementById('pImg').src,
             updatedAt: new Date().toISOString()
         };
         await setDoc(doc(db, "userProfiles", userUID), data);
-        Swal.fire('Success', 'Profile Secured and Updated!', 'success');
+        Swal.fire('Success', 'Profile Saved!', 'success');
         document.getElementById('saveBtn').style.display = "none";
-    } catch (e) {
-        console.error("Save Error:", e);
-        Swal.fire('Error', 'Failed to synchronize with database. Try refreshing.', 'error');
-    }
+    } catch (e) { Swal.fire('Error', 'Failed to save', 'error'); }
 };
 
-// ... (renderUI, image handling, logout, pdf logic remains same as before) ...
-            
+function renderUI(d) {
+    document.getElementById('pImg').src = d.profilePic || "";
+    document.getElementById('pName').innerText = d.username || "";
+    document.getElementById('pEmail').innerText = d.email || "";
+    document.getElementById('pDob').innerText = d.dob || "-";
+    document.getElementById('pBlood').innerText = d.blood || "-";
+    document.getElementById('pFather').innerText = d.father || "-";
+    document.getElementById('pAadhar').innerText = d.aadhar || "-";
+}
+
+// --- FIXED LOGOUT ---
+document.getElementById('logoutBtn').onclick = () => {
+    signOut(auth).then(() => {
+        window.location.href = "index.html";
+    }).catch((error) => {
+        console.error("Logout Error:", error);
+    });
+};
+
+window.exportPDF = () => {
+    html2canvas(document.getElementById('printableArea'), {scale:3}).then(canvas => {
+        const pdf = new jspdf.jsPDF();
+        pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 15, 15, 180, 0);
+        pdf.save('ID_Card.pdf');
+    });
+};
