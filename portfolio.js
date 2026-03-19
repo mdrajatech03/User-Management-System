@@ -18,7 +18,7 @@ const db = getFirestore(app);
 let userUID = "";
 let imgData = ""; 
 
-// --- 1. Switch Sections Logic ---
+// --- 1. Show/Hide Sections ---
 window.showSection = async (id) => {
     ['welcomeScreen', 'formSection', 'viewSection'].forEach(s => {
         const el = document.getElementById(s);
@@ -27,13 +27,13 @@ window.showSection = async (id) => {
     const target = document.getElementById(id);
     if(target) target.style.display = 'flex';
 
-    // Edit mode mein purana data load karna
+    // Edit Mode: Purana data load karna
     if(id === 'formSection' && userUID) {
         const snap = await getDoc(doc(db, "userProfiles", userUID));
         if(snap.exists()){
             const d = snap.data();
             document.getElementById('fName').value = d.username || "";
-            document.getElementById('fAadhar').value = d.aadhar || "";
+            document.getElementById('fAadhar').value = d.aadhar || ""; // Aadhar load fix
             document.getElementById('fDob').value = d.dob || "";
             document.getElementById('fBlood').value = d.blood || "";
             document.getElementById('fFather').value = d.father || "";
@@ -44,7 +44,7 @@ window.showSection = async (id) => {
     }
 };
 
-// --- 2. Auth Status Check ---
+// --- 2. Auth Check ---
 onAuthStateChanged(auth, async (user) => {
     if (user) {
         userUID = user.uid;
@@ -56,7 +56,6 @@ onAuthStateChanged(auth, async (user) => {
         if (snap.exists()) { 
             renderUI(snap.data()); 
             showSection('viewSection'); 
-            document.getElementById('saveBtn').style.display = "none"; 
         } else { 
             showSection('welcomeScreen'); 
         }
@@ -65,13 +64,13 @@ onAuthStateChanged(auth, async (user) => {
     }
 });
 
-// --- 3. Photo Upload with 1MB Limit ---
+// --- 3. Photo Upload Check (1MB) ---
 const fImage = document.getElementById('fImage');
 if(fImage) {
     fImage.onchange = (e) => {
         const file = e.target.files[0];
         if (file && file.size > 1048576) {
-            Swal.fire('Warning', 'Photo size 1MB se kam honi chahiye!', 'warning');
+            Swal.fire('Warning', 'Photo size 1MB se kam rakhein!', 'warning');
             e.target.value = ""; 
             return;
         }
@@ -84,87 +83,74 @@ if(fImage) {
     };
 }
 
-// --- 4. Trigger Preview (Card par data dikhana) ---
+// --- 4. Trigger Preview ---
 window.triggerPreview = () => {
-    const name = document.getElementById('fName').value;
-    const aadhar = document.getElementById('fAadhar').value;
-    const father = document.getElementById('fFather').value;
-
-    if(!name || aadhar.length !== 12 || !father) {
-        return Swal.fire('Error', 'Name, Father Name aur 12-digit Aadhar zaroori hai!', 'error');
-    }
-    if(!imgData) return Swal.fire('Error', 'Profile photo upload karein!', 'warning');
-
     const data = {
-        username: name,
-        email: auth.currentUser.email,
+        username: document.getElementById('fName').value,
+        aadhar: document.getElementById('fAadhar').value,
+        father: document.getElementById('fFather').value,
         dob: document.getElementById('fDob').value,
         blood: document.getElementById('fBlood').value,
-        father: father,
         category: document.getElementById('fCategory').value,
+        email: auth.currentUser.email,
         profilePic: imgData
     };
+
+    if(!data.username || data.aadhar.length !== 12 || !data.father) {
+        return Swal.fire('Error', 'Name, Father Name aur 12-digit Aadhar bharo!', 'error');
+    }
+    if(!imgData) return Swal.fire('Error', 'Photo upload karein!', 'warning');
 
     renderUI(data);
     showSection('viewSection');
     document.getElementById('saveBtn').style.display = "block";
 };
 
-// --- 5. Save to Firebase (Database mein bhejnat) ---
+// --- 5. Save Data (Aadhar Fix) ---
 window.finalSave = async () => {
-    Swal.fire({title: 'Saving Data...', allowOutsideClick: false, didOpen: () => Swal.showLoading()});
+    Swal.fire({title: 'Saving...', allowOutsideClick: false, didOpen: () => Swal.showLoading()});
     try {
         const data = {
             username: document.getElementById('pName').innerText,
             email: document.getElementById('pEmail').innerText,
             dob: document.getElementById('pDob').innerText,
             blood: document.getElementById('pBlood').innerText,
-            aadhar: document.getElementById('pAadhar').innerText,
-            father: document.getElementById('pFather').innerText, // Father field added
+            aadhar: document.getElementById('pAadhar').innerText, // Correct ID
+            father: document.getElementById('pFather').innerText,
             category: document.getElementById('pCategory').innerText,
             profilePic: document.getElementById('pImg').src,
             updatedAt: new Date().toISOString()
         };
         await setDoc(doc(db, "userProfiles", userUID), data);
-        Swal.fire('Success!', 'Aapka ID card save ho gaya hai.', 'success');
+        Swal.fire('Success!', 'ID Card save ho gaya.', 'success');
         document.getElementById('saveBtn').style.display = "none";
     } catch (e) { 
-        console.error(e);
-        Swal.fire('Error', 'Save fail ho gaya. Rules check karein.', 'error'); 
+        Swal.fire('Error', 'Save fail! Rules check karein.', 'error'); 
     }
 };
 
-// --- 6. Render UI Helper ---
+// --- 6. Render UI ---
 function renderUI(d) {
     document.getElementById('pImg').src = d.profilePic || "";
     document.getElementById('pName').innerText = d.username || "User";
     document.getElementById('pEmail').innerText = d.email || "";
     document.getElementById('pDob').innerText = d.dob || "-";
     document.getElementById('pBlood').innerText = d.blood || "-";
-    document.getElementById('pAadhar').innerText = d.aadhar || "-";
-    document.getElementById('pFather').innerText = d.father || "-"; // ID card update
+    document.getElementById('pAadhar').innerText = d.aadhar || "-"; // ID check
+    document.getElementById('pFather').innerText = d.father || "-";
     document.getElementById('pCategory').innerText = d.category || "-";
 }
 
-// --- 7. Professional PDF Download ---
+// --- 7. Export PDF ---
 window.exportPDF = () => {
     const area = document.getElementById('printableArea');
-    Swal.fire({title: 'PDF taiyar ho raha hai...', didOpen: () => Swal.showLoading()});
-
     html2canvas(area, {scale: 4, useCORS: true}).then(canvas => {
-        const imgWidth = 85; 
-        const imgHeight = (canvas.height * imgWidth) / canvas.width;
         const pdf = new jspdf.jsPDF('p', 'mm', 'a4');
-        const xPos = (pdf.internal.pageSize.getWidth() - imgWidth) / 2;
-        
-        pdf.addImage(canvas.toDataURL('image/png'), 'PNG', xPos, 20, imgWidth, imgHeight);
-        pdf.save(`ID_Card_${document.getElementById('pName').innerText}.pdf`);
-        Swal.close();
+        pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 62, 20, 85, 55);
+        pdf.save(`ID_${document.getElementById('pName').innerText}.pdf`);
     });
 };
 
-// --- 8. Logout Logic ---
-const lout = document.getElementById('logoutBtn');
-if(lout) {
-    lout.onclick = () => signOut(auth).then(() => window.location.href = "index.html");
-}
+// --- 8. Logout ---
+document.getElementById('logoutBtn').onclick = () => signOut(auth).then(() => window.location.href = "index.html");
+            
