@@ -15,7 +15,7 @@ A secure, responsive, and modern full-stack web application designed for managin
 
 * **Frontend:** HTML5, CSS3 (Flexbox/Grid), JavaScript (ES6+)
 * **Backend/Database:** Firebase (Authentication & Firestore)
-* **Libraries:** * [html2pdf.js](https://ekoopmans.github.io/html2pdf.js/) for PDF generation.
+* **Libraries:** [html2pdf.js](https://ekoopmans.github.io/html2pdf.js/) for PDF generation.
     * Google Fonts (Segoe UI / Inter).
 
 ## 📁 File Structure
