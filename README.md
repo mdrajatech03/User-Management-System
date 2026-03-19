@@ -19,7 +19,7 @@ A secure, responsive, and modern full-stack web application designed for managin
     * Google Fonts (Segoe UI / Inter).
 
 ## 📁 File Structure
-``text
+
 ├── admin.html       # Admin Panel interface
 ├── admin.js         # Logic for admin operations & Firebase rules
 ├── auth.js          # Authentication logic (Login/Signup)
