@@ -142,38 +142,40 @@ function renderUI(d) {
 }
 
 // --- 7. Export PDF ---
+
 window.exportPDF = () => {
     const area = document.getElementById('printableArea');
     
     Swal.fire({
-        title: 'Generating Vertical PDF...',
+        title: 'Fixing PDF Layout...',
+        text: 'Generating full vertical view',
         didOpen: () => Swal.showLoading()
     });
 
     html2canvas(area, {
         scale: 4, 
         useCORS: true,
-        backgroundColor: null
+        backgroundColor: null,
+        logging: false
     }).then(canvas => {
-        // Standard ID Card Size in Points (3.375" x 2.125")
-        const cardWidth = 243; 
-        const cardHeight = 153;
+        // Points mein accurate size (3.375" x 2.125")
+        const imgWidth = 243; 
+        const imgHeight = 153;
 
-        // orientation: 'p' (Portrait/Vertical)
+        // Portrait 'p' mode mein naya PDF jisme page size bada rakha hai taaki kete nahi
         const pdf = new jspdf.jsPDF({
             orientation: 'p',
             unit: 'pt',
-            format: [cardHeight, cardWidth] // Page size card ke hisaab se vertical
+            format: [imgHeight + 40, imgWidth + 40] // Margin ke liye +40 points add kiye hain
         });
 
         const imgData = canvas.toDataURL('image/png');
 
-        // Image ko rotate karke vertical page par fit karna
-        // (image, format, x, y, width, height, alias, compression, rotation)
-        pdf.addImage(imgData, 'PNG', 0, 0, cardWidth, cardHeight, null, 'FAST', 0);
+        // Card ko page ke beech mein set karne ke liye 20 points ka margin
+        pdf.addImage(imgData, 'PNG', 20, 20, imgWidth, imgHeight);
 
         const fileName = document.getElementById('pName').innerText || "ID_Card";
-        pdf.save(`${fileName}_Vertical.pdf`);
+        pdf.save(`${fileName}_Fixed.pdf`);
         
         Swal.close();
     });
